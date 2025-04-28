@@ -4,7 +4,7 @@ from teams.views import TeamViewSet
 
 router = DefaultRouter()
 
-router.register('team', TeamViewSet)
+router.register('teams', TeamViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
