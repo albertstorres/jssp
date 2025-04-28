@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from operation_tasks.models import OperationTasks
+from operation_tasks.serializers import OperationTasksSerializer
 
-# Create your views here.
+
+class OperationTasksViewSet(viewsets.ModelViewSet):
+    queryset = OperationTasks.objects.all()
+    serializer_class = OperationTasksSerializer

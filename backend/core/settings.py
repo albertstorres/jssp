@@ -27,6 +27,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+
+    'categories',
+    'operation_tasks',
+    'operations',
+    'tasks',
+    'teams',
+    'users',
+    'workers',
 ]
 
 MIDDLEWARE = [
