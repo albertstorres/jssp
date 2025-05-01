@@ -16,6 +16,14 @@ class Task(models.Model):
         related_name='Categories',
         verbose_name='Categoria',
     ),
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Criado em',
+    )
+    updated_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Atualizado em',
+    )
 
 
     class Meta:
