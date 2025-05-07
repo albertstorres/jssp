@@ -4,14 +4,15 @@ from django.db import models
 class Categorie(models.Model):
     description = models.CharField(
         max_length=60,
+        unique=True,
         verbose_name='Descrição',
-    ),
+    )
     estimated_time = models.PositiveIntegerField(
-        verbose_name='Estimativa de tempo'
+        verbose_name='Estimativa de tempo',
     )
     priority = models.CharField(
         max_length=30,
-        verbose_name='Prioridade'
+        verbose_name='Prioridade',
     )
 
 

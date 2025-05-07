@@ -7,21 +7,27 @@ class Task(models.Model):
     team = models.ForeignKey(
         Team,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='Teams',
         verbose_name='Equipe',
-    ),
+    )
     categorie = models.ForeignKey(
         Categorie,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='Categories',
         verbose_name='Categoria',
-    ),
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
+        null=True,
         verbose_name='Criado em',
     )
     updated_at = models.DateTimeField(
         auto_now_add=True,
+        null=True,
         verbose_name='Atualizado em',
     )
 

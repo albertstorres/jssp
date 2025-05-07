@@ -9,4 +9,4 @@ class OperatorViewSet(viewsets.ModelViewSet):
     queryset = Operator.objects.all()
     serializer_class = OperatorSerializer
     rql_filter_class = OperatorFilterClass
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]

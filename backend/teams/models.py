@@ -3,12 +3,15 @@ from django.db import models
 
 class Team(models.Model):
     shift = models.IntegerField(
+        default=8,
         verbose_name='Turno',
-    ),
+    )
     name = models.CharField(
         max_length=50,
+        null=True,
+        blank=True,
         verbose_name='Nome',
-    ),
+    )
 
 
     class Meta:

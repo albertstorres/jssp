@@ -7,15 +7,19 @@ class OperationTasks(models.Model):
     operation = models.ForeignKey(
         Operation,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='Operations',
         verbose_name='Operação',
-    ),
+    )
     task = models.ForeignKey(
         Task,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='Tasks',
         verbose_name='Tarefa',
-    ),
+    )
 
 
     class Meta:

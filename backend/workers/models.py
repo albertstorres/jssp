@@ -6,9 +6,11 @@ class Worker(models.Model):
     team = models.ForeignKey(
         Team,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name='team',
         verbose_name='equipe_id',
-    ),
+    )
     name = models.CharField(
         max_length=50,
         verbose_name='Nome',
