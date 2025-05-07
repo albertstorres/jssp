@@ -1,4 +1,4 @@
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from operation_tasks.models import OperationTasks
 from operation_tasks.serializers import OperationTasksSerializer
@@ -9,4 +9,4 @@ class OperationTasksViewSet(viewsets.ModelViewSet):
     queryset = OperationTasks.objects.all()
     serializer_class = OperationTasksSerializer
     rql_filter_class = OperationTasksFilterClass
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
