@@ -2,6 +2,7 @@ asgiref==3.8.1
 attrs==25.3.0
 cachetools==5.5.2
 Django==5.2
+django-cors-headers==4.7.0
 django-rql==4.4.1
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0

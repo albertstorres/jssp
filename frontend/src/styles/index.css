@@ -1,0 +1,9 @@
+@import url('./custom-classes.css');
+@import url('./buttons.css');
+@import url('./inputs.css');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

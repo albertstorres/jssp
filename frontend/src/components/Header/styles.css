@@ -1,0 +1,39 @@
+.header{
+    width: 1370.5px;
+    height: 109px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.header::after{
+    content: '';
+    display: block;
+    width: 1370.5px;
+    height: 2px;
+    background-color: #C8C8C8;
+    position: absolute;
+    top: 82px;
+    left: 0px;
+}
+
+.logo{
+    background-color: #FFFFFF;
+    position: absolute;
+    width: 198px;
+    height: 59px;
+    top: 16px;
+    left: 0px;
+}
+
+.board{
+    background-color: #D9D9D9;
+    position: absolute;
+    width: 782px;
+    height: 40px;
+    top: 25px;
+    left: 288.5px;
+    border-radius: 5px;
+}

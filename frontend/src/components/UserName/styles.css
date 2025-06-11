@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:wght@400;500;700&display=swap');
+
+.user{
+    background-color: #FFFFFF;
+    position: absolute;
+    width: 146px;
+    height: 26px;
+    top: 32px;
+    left: 1220px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+
+    white-space: nowrap;
+    overflow: hidden;          
+    text-overflow: ellipsis;
+}
