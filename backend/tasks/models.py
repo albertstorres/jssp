@@ -4,31 +4,42 @@ from categories.models import Categorie
 
 
 class Task(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pendente'),
+        ('in_progress', 'Em andamento'),
+        ('finished', 'Finalizada'),
+    ]
+    status = models.CharField(
+        max_length = 50,
+        choices = STATUS_CHOICES,
+        default = 'pending',
+        verbose_name = 'Status',
+    )
     team = models.ForeignKey(
         Team,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='Teams',
-        verbose_name='Equipe',
+        on_delete = models.PROTECT,
+        null = True,
+        blank = True,
+        related_name = 'Teams',
+        verbose_name = 'Equipe',
     )
     categorie = models.ForeignKey(
         Categorie,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='Categories',
-        verbose_name='Categoria',
+        on_delete = models.PROTECT,
+        null = True,
+        blank = True,
+        related_name = 'Categories',
+        verbose_name = 'Categoria',
     )
     created_at = models.DateTimeField(
-        auto_now_add=True,
-        null=True,
-        verbose_name='Criado em',
+        auto_now_add = True,
+        null = True,
+        verbose_name = 'Criado em',
     )
-    updated_at = models.DateTimeField(
-        auto_now_add=True,
-        null=True,
-        verbose_name='Atualizado em',
+    finished_at = models.DateTimeField(
+        default = None,
+        null = True,
+        verbose_name = 'Finalizado em',
     )
 
 

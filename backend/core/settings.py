@@ -23,11 +23,14 @@ INSTALLED_APPS = [
 
     'authetication',
     'categories',
-    'operation_tasks',
+    'equipment',
+    'equipment_task',
+    'operation_task',
     'operations',
     'operators',
     'tasks',
     'teams',
+    'team_task',
     'workers',
 ]
 

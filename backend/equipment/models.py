@@ -3,14 +3,18 @@ from django.db import models
 
 class Equipment(models.Model):
     timespan = models.IntegerField(
-        default=24,
-        verbose_name='Período máximo para agendamento',
+        default = 86400,
+        verbose_name = 'Período máximo para agendamento',
     )
     name = models.CharField(
-        max_length=60,
-        null=True,
-        blank=True,
-        verbose_name='Nome equipamento',
+        max_length = 60,
+        null = True,
+        blank = True,
+        verbose_name = 'Nome equipamento',
+    )
+    is_ocupied = models.BooleanField(
+        default = False,
+        verbose_name = 'Está ocupado',
     )
 
 
@@ -25,19 +29,19 @@ class Equipment(models.Model):
 class DowntimePeriod(models.Model):
     equipment = models.ForeignKey(
         Equipment,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='Equipment',
-        verbose_name='Equipamento',
+        on_delete = models.PROTECT,
+        null = True,
+        blank = True,
+        related_name = 'EquipmentDownTime',
+        verbose_name = 'Equipamento',
     )
     start_time = models.DateTimeField(
-        null=True,
-        blank=True,
+        null = True,
+        blank = True,
     )
     end_time = models.DateTimeField(
-        null=True,
-        blank=True,
+        null = True,
+        blank = True,
     )
 
 

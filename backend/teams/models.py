@@ -12,6 +12,10 @@ class Team(models.Model):
         blank=True,
         verbose_name='Nome',
     )
+    is_ocupied = models.BooleanField(
+        default = False,
+        verbose_name = 'Está ocupado',
+    )
 
 
     class Meta:

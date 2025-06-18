@@ -8,7 +8,7 @@ class Operation(models.Model):
         blank=True,
         verbose_name='Nome',
     )
-    begin = models.DateField(
+    begin = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name='Início',
