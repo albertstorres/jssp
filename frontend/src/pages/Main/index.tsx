@@ -42,8 +42,8 @@ function Main() {
         <div className="boxes-container">
           <div className="box">
             <div className='button-group'>
-              <button className='btn-red'>Menu Categorias</button>
-              <button className='btn-light-blue'>Menu Equipamentos</button>
+              <button className='btn-red' onClick={() => navigate('/createTask/')}>Criar Tarefa</button>
+              <button className='btn-light-blue' onClick={() => navigate('/createOperation/')}>Criar Operação</button>
               <button className='btn-blue' onClick={() => navigate('/menuTeams/')}>Menu Equipes</button>
               <button className='btn-yellow'>Menu Trabalhadores</button>
             </div>

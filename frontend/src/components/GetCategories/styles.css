@@ -1,0 +1,28 @@
+.get-categoriest-container {
+  padding: 20px;
+}
+
+.get-categories-title {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.category-item.selected {
+  background-color: #d4f7dc;
+}

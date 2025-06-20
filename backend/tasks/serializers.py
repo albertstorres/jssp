@@ -25,11 +25,9 @@ class TaskSerializer(serializers.ModelSerializer):
         extra_fields = ['tem_info', 'equipment_info', 'operation_info']
     
     def get_equipment_info(sef, obj):
-        equipment_task = EquipmentTask.objects.filter(task = obj).first()
-
-        if equipment_task:
-            return EquipmentSerializer(equipment_task.equipment).data
-        return None
+        equipment_task = EquipmentTask.objects.filter(task = obj)
+        equipments = [et.equipment for et in equipment_task if et.equipment]
+        return EquipmentSerializer(equipments, many = True).data
     
     def get_team_info(sef, obj):
         team_task = TeamTask.objects.filter(task = obj).first()

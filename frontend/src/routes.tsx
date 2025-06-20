@@ -4,6 +4,8 @@ import Main from './pages/Main';
 import SignIn from './pages/SignIn';
 import CreateTeam from './pages/CreateTeam';
 import MenuTeams from './pages/MenuTeams';
+import CreateOperation from './pages/CreateOperation';
+import CreateTask from './pages/CreateTask';
 
 type Props = {
     redirectTo: string;
@@ -22,6 +24,8 @@ function MainRoutes(){
                 <Route path={'/main'} element={<Main />} />
                 <Route path={'/menuTeams'} element={<MenuTeams />} />
                 <Route path={'/createTeam'} element={<CreateTeam />} />
+                <Route path={'/createOperation'} element={<CreateOperation />} />
+                <Route path={'/createTask'} element={<CreateTask />} />
             </Route>
         </Routes>
     );
