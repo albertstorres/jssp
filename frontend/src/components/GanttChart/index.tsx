@@ -20,7 +20,6 @@ const COLORS = [
 ];
 
 function GanttChart({ data }: GanttChartProps) {
-
   const uniqueOperations = Array.from(new Set(data.map(d => d.operation)));
 
   const formattedData = data.map((task, index) => ({
@@ -47,8 +46,7 @@ function GanttChart({ data }: GanttChartProps) {
       <Plot
         data={formattedData}
         layout={{
-          autosize: false,
-          width: 592,
+          autosize: true,
           height: 263,
           margin: { l: 150, r: 20, t: 20, b: 40 },
           barmode: 'stack',

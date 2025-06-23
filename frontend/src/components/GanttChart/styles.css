@@ -1,4 +1,8 @@
 .gantt-container {
-  width: 592px;
-  height: 263px;
+  width: 100%;
+  height: auto;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

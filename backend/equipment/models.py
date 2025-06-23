@@ -2,10 +2,6 @@ from django.db import models
 
 
 class Equipment(models.Model):
-    timespan = models.IntegerField(
-        default = 86400,
-        verbose_name = 'Período máximo para agendamento',
-    )
     name = models.CharField(
         max_length = 60,
         null = True,

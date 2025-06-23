@@ -1,28 +1,104 @@
-.get-equipment-container {
-  padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&family=Poppins:wght@400;500;700&display=swap');
+
+body {
+  overflow-x: hidden;
 }
 
-.get-equipment-title {
-  margin-bottom: 12px;
-  font-size: 1.2rem;
+.get-equipments-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.get-equipments {
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 960px;
+  padding: 32px 48px 48px 48px;
+  border-radius: 12px;
+  border: 2px solid #C8C8C8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden;
+}
+
+.get-equipments-title {
+  font-size: 22px;
+  color: #585858;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 600;
 }
 
 .equipment-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 4px;
   list-style: none;
-  padding: 0;
   margin: 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.equipment-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.equipment-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.equipment-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .equipment-item {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 8px;
-  background-color: #f9f9f9;
+  flex: 0 0 auto;
+  width: 240px;
+  background-color: #FFFFFF;
+  border: 2px solid #C8C8C8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: #333;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.equipment-item:hover {
+  border-color: #4CAF50;
+  background-color: #f3fff3;
 }
 
 .equipment-item.selected {
-  background-color: #d4f7dc;
+  border-color: #4CAF50;
+  background-color: #e7ffe7;
+  font-weight: bold;
+}
+
+.equipment-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.equipment-info-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.equipment-info-label {
+  font-weight: 500;
+  color: #585858;
+}
+
+.equipment-value {
+  color: #333;
 }

@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&display=swap');
+
+.list-teams-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: 'DM Sans', sans-serif;
+  padding-top: 60px;
+  overflow-x: hidden;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.main-title {
+  margin-bottom: 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  color: #585858;
+  text-align: center;
+}
+
+.get-team-popover {
+  position: absolute;
+  width: 400px;
+  max-width: 90vw;
+  background-color: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  font-family: 'DM Sans', sans-serif;
+  z-index: 9999;
+}
+
+.get-team-popover h2 {
+  font-size: 18px;
+  color: #333333;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.get-team-popover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.get-team-popover li {
+  padding: 8px 10px;
+  border-bottom: 1px solid #E0E0E0;
+  font-size: 14px;
+  color: #444;
+}
+
+.get-team-popover li:last-child {
+  border-bottom: none;
+}
+
+.get-team-popover .error-message {
+  color: #B00020;
+  background-color: #FFE0E0;
+  border: 1px solid #CC8888;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 8px;
+}

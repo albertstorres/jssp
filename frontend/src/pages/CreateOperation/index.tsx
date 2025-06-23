@@ -1,109 +1,67 @@
 import './styles.css';
+import { useState } from 'react';
 import Header from '../../components/Header';
 import GetTasks, { Task } from '../../components/GetTasks';
-import { useState } from 'react';
-import api from '../../services/api';
-import useAuth from '../../hooks/useAuth';
+import GetEquipments, { Equipment } from '../../components/GetEquipments';
+import SetOperation from '../../components/SetOperation';
 
-function CreateOperation(){
-    const [operationName, setOperationName] = useState('');
+function CreateOperation() {
     const [selectedTasks, setSelectedTasks] = useState<Task[]>([]);
-    const { handleGetToken } = useAuth();
-    const access = handleGetToken()
+    const [selectedEquipments, setSelectedEquipments] = useState<Equipment[]>([]);
 
-    const handleSelectTask = (task: Task) => {
-        setSelectedTasks((prevSelected) => {
-            const alreadySelected = prevSelected.find((t) => t.id === task.id);
-            if (alreadySelected) {
-                return prevSelected.filter((t) => t.id !== task.id);
-            }
-            return [...prevSelected, task];
-        });
-    };
-
-    const handleSubmit = async () => {
-        if (!operationName.trim()) {
-            alert('Digite um nome para a operação.');
-            return;
+    function toggleTaskSelection(task: Task) {
+        const alreadySelected = selectedTasks.some((t) => t.id === task.id);
+        if(alreadySelected) {
+            setSelectedTasks((prev) => prev.filter((t) => t.id !== task.id));
+        } else {
+            setSelectedTasks((prev) => [...prev, task]);
         }
+    }
 
-        if (selectedTasks.length === 0) {
-            alert('Selecione pelo menos uma tarefa.');
-            return;
+    function toggleEquipmentSelection(equipment: Equipment) {
+        const alreadySelected = selectedEquipments.some((e) => e.id === equipment.id);
+        if(alreadySelected) {
+            setSelectedEquipments((prev) => prev.filter((e) => e.id !== equipment.id));
+        } else {
+            setSelectedEquipments((prev) => [...prev, equipment]);
         }
+    }
 
-        try {
-            const response = await api.post(
-                'http://localhost:8000/api/v1/operations/',
-                {
-                    name: operationName,
-                    task_ids: selectedTasks.map((task) => task.id),
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${access}`,
-                    },
-                }
-            );
+    return (
+        <div className="create-operation-page">
+            <Header />
 
-            alert('Operação criada com sucesso!');
-            setOperationName('');
-            setSelectedTasks([]);
+            <main className="create-operation-main">
+                <h1 className="create-operation-title">Criar Nova Operação</h1>
 
-        }catch (error) {
-            console.error('Erro aoi criar operação: ', error);
-            alert('Erro ao criar operação.');
-        }
-    };
-
-   return (
-    <>
-      <Header />
-      <div className="create-operation-container">
-        <h1>Criar Nova Operação</h1>
-
-        <input
-          type="text"
-          placeholder="Digite o nome da operação"
-          value={operationName}
-          onChange={(e) => setOperationName(e.target.value)}
-          className="operation-input"
-        />
-
-        <div className = 'operation-layout'>
-            <div className = 'selected-task-box'>
-                <h3>Tarefas selecionadas</h3>
-                <ul>
-                    {selectedTasks.map((task) => (
-                        <li key = {task.id}>
-                            #{task.id} - {task.team_info.name} - Equipamentos:
-                            {task.equipment_info.length > 0 ? (
-                                <ul>
-                                    {task.equipment_info.map((eq) => (
-                                        <li key = {eq.id}>{eq.name}</li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <span>Sem equipamento</span>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            <div className = 'task-selection-box'>
+                <section className="selection-section">
                     <GetTasks
-                    onSelectTask={handleSelectTask}
-                    selectedTasks={selectedTasks}
+                        selectedTasks={selectedTasks}
+                        onSelectTask={toggleTaskSelection}
                     />
-            </div>
-        </div>
+                </section>
 
-        <button className="submit-button" onClick={handleSubmit}>
-          Criar Operação
-        </button>
-      </div>
-    </>
-  );
+                <section className="selection-section">
+                    <GetEquipments
+                        selectedEquipments={selectedEquipments}
+                        onSelectEquipment={toggleEquipmentSelection}
+                    />
+                </section>
+
+                <section className="action-section">
+                    <SetOperation
+                        selectedTaskIds={selectedTasks.map(t => t.id)}
+                        selectedEquipmentIds={selectedEquipments.map(e => e.id)}
+                        onSuccess={() => {
+                            alert('Operação criada com sucesso!');
+                            setSelectedTasks([]);
+                            setSelectedEquipments([]);
+                        }}
+                    />
+                </section>
+            </main>
+        </div>
+    );
 }
 
 

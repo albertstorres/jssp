@@ -3,31 +3,21 @@ from tasks.models import Task
 from django.utils import timezone
 
 from team_task.models import TeamTask
-from equipment_task.models import EquipmentTask
-from equipment.models import Equipment
 
 from teams.serializers import TeamSerializer
-from equipment.serializers import EquipmentSerializer
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    equipment_id = serializers.IntegerField(write_only = True, required = False)
     operation_id = serializers.IntegerField(write_only = True, required = False)
 
     team_info = TeamSerializer(source = 'team', read_only = True)
-    equipment_info = serializers.SerializerMethodField()
 
 
     class Meta:
         model = Task
         fields = '__all__'
         read_only_fields = ['finished_at']
-        extra_fields = ['tem_info', 'equipment_info', 'operation_info']
-    
-    def get_equipment_info(sef, obj):
-        equipment_task = EquipmentTask.objects.filter(task = obj)
-        equipments = [et.equipment for et in equipment_task if et.equipment]
-        return EquipmentSerializer(equipments, many = True).data
+        extra_fields = ['tem_info', 'operation_info']
     
     def get_team_info(sef, obj):
         team_task = TeamTask.objects.filter(task = obj).first()
@@ -43,20 +33,9 @@ class TaskSerializer(serializers.ModelSerializer):
         if status == 'in_progress' and team and team.is_ocupied:
             raise serializers.ValidationError({'team': 'Esta equipe j[a está ocupada com outra tarefa.'})
 
-        equipment_id = self.initial_data.get('equipment_id')
-
-        if equipment_id:
-            try: 
-                equipment = Equipment.objects.get(id = equipment_id)
-                if equipment.is_ocupied:
-                    raise serializers.ValidationError({'equipment_id': 'Equipamento sendo utilizado em outra tarefa.'})
-            except Equipment.DoesNotExist:
-                raise serializers.ValidationError({'equipment_id': 'Equipamento não cadastrado.'})
-
         return super().validate(attrs)
 
     def create(self, validated_data):
-        equipment_id = validated_data.pop('equipment_id', None)
         team = validated_data.get('team')
         status = validated_data.get('status', 'pending')
 
@@ -68,18 +47,6 @@ class TaskSerializer(serializers.ModelSerializer):
             if status == 'in_progress':
                 team.is_ocupied = True
                 team.save()
-
-        if equipment_id:
-            try:
-                equipment = Equipment.objects.get(id = equipment_id)
-                EquipmentTask.objects.get_or_create(task = task, equipment = equipment)
-
-                if status == 'in_progress':
-                    equipment.is_ocupied = True
-                    equipment.save()
-
-            except Equipment.DoesNotExist:
-                raise serializers.ValidationError({'equipment_id':'Equipamento não cadastrado.'})
         
         return task
 
@@ -102,15 +69,5 @@ class TaskSerializer(serializers.ModelSerializer):
                 elif new_status == 'finished':
                     team.is_ocupied = False
                     team.save()
-        
-        equipment_task = EquipmentTask.objects.filter(task = instance).first()
-        equipment = equipment_task.equipment if equipment_task else None
-
-        if equipment and old_status != new_status:
-            if new_status == 'in_progress':
-                equipment.is_ocupied = True
-            elif new_status == 'finished':
-                equipment.is_ocupied = False
-            equipment.save()
         
         return super().update(instance, validated_data)

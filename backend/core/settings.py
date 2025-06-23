@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     'authetication',
     'categories',
     'equipment',
-    'equipment_task',
+    'equipment_operation',
     'operation_task',
     'operations',
     'operators',

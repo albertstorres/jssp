@@ -1,3 +1,4 @@
+import './styles.css';
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import useAuth from "../../hooks/useAuth";
@@ -29,7 +30,7 @@ function GetCategories({ onSelectCategory, selectedCategory }: GetCategoryProps)
         });
         setCategories(response.data);
       } catch (error) {
-        console.error("Erro ao buscar categories:", error);
+        console.error("Erro ao buscar categorias:", error);
       }
     }
 
@@ -43,19 +44,31 @@ function GetCategories({ onSelectCategory, selectedCategory }: GetCategoryProps)
 
   return (
     <div className="get-categories-container">
-      <h2 className="get-categories-title">Selecione as categorias:</h2>
-      <ul className="category-list">
-        {categories.map((category) => (
-          <li
-            key={category.description}
-            onClick={() => onSelectCategory(category)}
-            className={`category-item ${isSelected(category) ? "selected" : ""}`}
-          >
-            <strong>{`Categoria: ${category.description}`}</strong>
-
-          </li>
-        ))}
-      </ul>
+      <div className="get-categories">
+        <h2 className="get-categories-title">Selecione as categorias:</h2>
+        <ul className="category-list">
+          {categories.map((category) => (
+            <li
+              key={category.id}
+              onClick={() => onSelectCategory(category)}
+              className={`category-item ${isSelected(category) ? "selected" : ""}`}
+            >
+              <div className="category-info-line">
+                <span className="category-info-label">Descrição:</span>
+                <span className="category-info-value">{category.description}</span>
+              </div>
+              <div className="category-info-line">
+                <span className="category-info-label">Prioridade:</span>
+                <span className="category-info-value">{category.priority}</span>
+              </div>
+              <div className="category-info-line">
+                <span className="category-info-label">Tempo estimado:</span>
+                <span className="category-info-value">{category.estimated_time} min</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

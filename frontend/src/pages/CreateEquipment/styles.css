@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&display=swap');
+
+.container-create-equipment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.create-equipment {
+    background-color: #FFFFFF;
+    width: 640px; /* ← aumentada */
+    height: auto;
+    padding: 32px 48px 48px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.create-equipment-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 24px;
+    color: #585858;
+    text-align: center;
+    margin-bottom: 32px;
+    white-space: nowrap;
+}

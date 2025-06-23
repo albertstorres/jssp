@@ -23,6 +23,15 @@ class Operation(models.Model):
         null=True,
         verbose_name='Criado em',
     )
+    timespan = models.IntegerField(
+        verbose_name='Tempo total de conslusão',
+        blank=True,
+        null=True,
+    )
+    finalized = models.BooleanField(
+        default=False,
+        verbose_name='Finalizado',
+    )
 
 
     class Meta:

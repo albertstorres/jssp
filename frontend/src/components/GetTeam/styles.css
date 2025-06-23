@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&family=Poppins:wght@400;500;700&display=swap');
+
+body {
+  overflow-x: hidden;
+}
+
+.get-team-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.get-team {
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 960px;
+  padding: 32px 48px 48px 48px;
+  border-radius: 12px;
+  border: 1px solid #CCCCCC;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden;
+}
+
+.get-team-title {
+  font-size: 22px;
+  color: #585858;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 16px;
+  color: #333333;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.worker-list,
+.task-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 4px;
+  margin: 0 0 16px 0;
+  list-style: none;
+
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.worker-list::-webkit-scrollbar,
+.task-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.worker-list::-webkit-scrollbar-thumb,
+.task-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.worker-list::-webkit-scrollbar-track,
+.task-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.worker-item,
+.task-item {
+  flex: 0 0 auto;
+  width: 200px;
+  background-color: #f9f9f9;
+  border: 1px solid #C8C8C8;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.worker-item:hover,
+.task-item:hover {
+  background-color: #eefef0;
+}
+
+.status-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 16px;
+}
+
+.error-message {
+  color: #B00020;
+  background-color: #FFE0E0;
+  border: 1px solid #CC8888;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.empty-message {
+  font-size: 14px;
+  color: #888888;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}

@@ -1,6 +1,6 @@
 from django.db import models
 from teams.models import Team
-from categories.models import Categorie
+from categories.models import Category
 
 
 class Task(models.Model):
@@ -23,8 +23,8 @@ class Task(models.Model):
         related_name = 'Teams',
         verbose_name = 'Equipe',
     )
-    categorie = models.ForeignKey(
-        Categorie,
+    category = models.ForeignKey(
+        Category,
         on_delete = models.PROTECT,
         null = True,
         blank = True,

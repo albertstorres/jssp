@@ -1,11 +1,24 @@
 import { Navigate, Outlet, Route, Routes} from 'react-router-dom';
+
 import useAuth from './hooks/useAuth';
+
 import Main from './pages/Main';
 import SignIn from './pages/SignIn';
-import CreateTeam from './pages/CreateTeam';
-import MenuTeams from './pages/MenuTeams';
+
+import CreateEquipment from './pages/CreateEquipment';
 import CreateOperation from './pages/CreateOperation';
 import CreateTask from './pages/CreateTask';
+import CreateTeam from './pages/CreateTeam';
+import CreateWorker from './pages/CreateWorker';
+
+import ListTeams from './pages/ListTeams';
+
+import MenuCategories from './pages/MenuCategories';
+import MenuEquipments from './pages/MenuEquipments';
+import MenuOperations from './pages/MenuOperations';
+import MenuTasks from './pages/MenuTasks';
+import MenuTeams from './pages/MenuTeams';
+import MenuWorkers from './pages/MenuWorkers';
 
 type Props = {
     redirectTo: string;
@@ -22,10 +35,18 @@ function MainRoutes(){
             <Route path={'/'} element={<SignIn />} />
             <Route element={<ProtectedRoutes redirectTo='/' />}>
                 <Route path={'/main'} element={<Main />} />
+                <Route path={'/menuCategories'} element={<MenuCategories />} />
+                <Route path={'/menuEquipments'} element={<MenuEquipments />} />
+                <Route path={'/menuOperations'} element={<MenuOperations />} />
+                <Route path={'/menuTasks'} element={<MenuTasks />} />
                 <Route path={'/menuTeams'} element={<MenuTeams />} />
+                <Route path={'/menuWorkers'} element={<MenuWorkers />} />
                 <Route path={'/createTeam'} element={<CreateTeam />} />
                 <Route path={'/createOperation'} element={<CreateOperation />} />
                 <Route path={'/createTask'} element={<CreateTask />} />
+                <Route path={'/createEquipment'} element={<CreateEquipment />} />
+                <Route path={'/createWorker'} element={<CreateWorker />} />
+                <Route path={'/listTeams'} element={<ListTeams />} />
             </Route>
         </Routes>
     );

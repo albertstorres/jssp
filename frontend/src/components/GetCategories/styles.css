@@ -1,28 +1,100 @@
-.get-categoriest-container {
-  padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&family=Poppins:wght@400;500;700&display=swap');
+
+body {
+  overflow-x: hidden;
+}
+
+.get-categories-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.get-categories {
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 960px;
+  padding: 32px 48px 48px 48px;
+  border-radius: 12px;
+  border: 1px solid #CCCCCC;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden;
 }
 
 .get-categories-title {
-  margin-bottom: 12px;
-  font-size: 1.2rem;
+  font-size: 22px;
+  color: #585858;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 600;
 }
 
 .category-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 4px;
   list-style: none;
-  padding: 0;
   margin: 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.category-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.category-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.category-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .category-item {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 8px;
-  background-color: #f9f9f9;
+  flex: 0 0 auto;
+  width: 200px;
+  background-color: #FFFFFF;
+  border: 1px solid #CCCCCC;;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: #333;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.category-item:hover {
+  border-color: #4CAF50;
+  background-color: #f3fff3;
 }
 
 .category-item.selected {
-  background-color: #d4f7dc;
+  border-color: #4CAF50;
+  background-color: #e7ffe7;
+  font-weight: bold;
+}
+
+.category-info-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.category-info-label {
+  font-weight: 500;
+  color: #585858;
+}
+
+.category-info-value {
+  font-size: 16px;
+  color: #333;
 }

@@ -1,19 +1,48 @@
 from rest_framework import serializers
-from equipment.models import Equipment
-from equipment.models import DowntimePeriod
+from equipment.models import Equipment, DowntimePeriod
+from django.utils import timezone
+from datetime import timedelta
 
 
 class EquipmentSerializer(serializers.ModelSerializer):
-
+    # Tempo de inatividade (em segundos) fornecido pela requisição
+    downtime_seconds = serializers.IntegerField(write_only=True, required=True)
 
     class Meta:
         model = Equipment
-        fields = '__all__'
+        exclude = ['is_ocupied']  # Garantimos que não seja enviado nem modificado via API
 
+    def create(self, validated_data):
+        downtime_seconds = validated_data.pop('downtime_seconds')
 
-class DowntimePeriodSerializer(serializers.ModelSerializer):
+        # Cria equipamento com is_ocupied sempre False por padrão
+        equipment = Equipment.objects.create(is_ocupied=False, **validated_data)
 
+        self._create_downtime_period(equipment, downtime_seconds)
 
-    class Meta:
-        model = DowntimePeriod
-        fields = '__all__'
+        return equipment
+
+    def update(self, instance, validated_data):
+        downtime_seconds = validated_data.pop('downtime_seconds', None)
+
+        # Atualiza campos normais (exceto is_ocupied)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        # Se downtime_seconds for enviado, cria novo período de inatividade
+        if downtime_seconds is not None:
+            self._create_downtime_period(instance, downtime_seconds)
+
+        return instance
+
+    def _create_downtime_period(self, equipment, seconds: int):
+        start_time = timezone.now()
+        end_time = start_time + timedelta(seconds=seconds)
+
+        DowntimePeriod.objects.create(
+            equipment=equipment,
+            start_time=start_time,
+            end_time=end_time
+        )

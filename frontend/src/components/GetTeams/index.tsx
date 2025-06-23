@@ -1,3 +1,4 @@
+import './styles.css';
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import useAuth from "../../hooks/useAuth";
@@ -10,11 +11,12 @@ export interface Team {
 }
 
 interface GetTeamProps {
-  onSelectTeam: (team: Team) => void;
-  selectedTeams: Team[];
+  onSelectTeam?: (team: Team, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+  selectedTeams?: Team[];
+  showAll?: boolean;
 }
 
-function GetTeams({ onSelectTeam, selectedTeams }: GetTeamProps) {
+function GetTeams({ onSelectTeam, selectedTeams = [], showAll = false }: GetTeamProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -22,40 +24,63 @@ function GetTeams({ onSelectTeam, selectedTeams }: GetTeamProps) {
   useEffect(() => {
     async function fetchTeams() {
       try {
-        const response = await api.get<Team[]>('http://localhost:8000/api/v1/teams/', {
+        const url = showAll
+          ? 'http://localhost:8000/api/v1/teams/'
+          : 'http://localhost:8000/api/v1/teams/?is_ocupied=false';
+
+        const response = await api.get<Team[]>(url, {
           headers: {
             Authorization: `Bearer ${access}`,
           },
         });
+
         setTeams(response.data);
       } catch (error) {
-        console.error("Erro ao buscar teams:", error);
+        console.error("Erro ao buscar equipes:", error);
       }
     }
 
     if (access) {
       fetchTeams();
     }
-  }, [access]);
+  }, [access, showAll]);
 
   const isSelected = (team: Team) =>
     selectedTeams.some((selected) => selected.id === team.id);
 
   return (
     <div className="get-teams-container">
-      <h2 className="get-teams-title">Selecione as equipes dispoiníveis:</h2>
-      <ul className="team-list">
-        {teams.map((team) => (
-          <li
-            key={team.id}
-            onClick={() => onSelectTeam(team)}
-            className={`team-item ${isSelected(team) ? "selected" : ""}`}
-          >
-            <strong>{`Equipe: ${team.name}`}</strong>
+      <div className="get-teams">
+        <h2 className="get-teams-title">
+          {showAll ? "Lista de Todas as Equipes" : "Selecione as equipes disponíveis:"}
+        </h2>
 
-          </li>
-        ))}
-      </ul>
+        <ul className="team-list">
+          {teams.map((team) => (
+            <li
+              key={team.id}
+              onClick={(event) => onSelectTeam && onSelectTeam(team, event)}
+              className={`team-item ${isSelected(team) ? "selected" : ""}`}
+              style={{ cursor: onSelectTeam ? "pointer" : "default" }}
+            >
+              <div className="team-item-content">
+                <div className="team-info-line">
+                  <span className="team-info-label">Equipe:</span>
+                  <span className="team-value">{team.name}</span>
+                </div>
+                <div className="team-info-line">
+                  <span className="team-info-label">Turno:</span>
+                  <span className="team-value">{team.shift}</span>
+                </div>
+                <div className="team-info-line">
+                  <span className="team-info-label">Ocupado:</span>
+                  <span className="team-value">{team.is_ocupied ? "Sim" : "Não"}</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
