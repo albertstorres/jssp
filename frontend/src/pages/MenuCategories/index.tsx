@@ -14,7 +14,7 @@ function MenuCategories() {
         </div>
 
         <div className="bottom-box">
-          <button className="bottom-button" onClick={() => navigate('/createCategorie/')}>Cadastrar Categoria</button>
+          <button className="bottom-button" onClick={() => navigate('/createCategory/')}>Cadastrar Categoria</button>
           <button className="bottom-button" onClick={() => navigate('/listCategories/')}>Listar Categorias</button>
           <button className="bottom-button">Editar Categoria</button>
           <button className="bottom-button">Remover Categoria</button>

@@ -10,7 +10,8 @@ class EquipmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        exclude = ['is_ocupied']  # Garantimos que não seja enviado nem modificado via API
+        fields = ['id', 'name', 'is_ocupied', 'downtime_seconds']  # ← Corrigido aqui
+        read_only_fields = ['is_ocupied']  # ← Garante que is_ocupied só aparece na leitura, não no POST/PUT
 
     def create(self, validated_data):
         downtime_seconds = validated_data.pop('downtime_seconds')

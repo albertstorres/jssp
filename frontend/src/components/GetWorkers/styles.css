@@ -1,10 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&family=Poppins:wght@400;500;700&display=swap');
-
-body {
-  overflow-x: hidden;
-}
-
-.get-teams-container {
+.get-workers-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +6,7 @@ body {
   font-family: 'DM Sans', sans-serif;
 }
 
-.get-teams {
+.get-workers {
   background-color: #FFFFFF;
   width: 100%;
   max-width: 960px;
@@ -23,7 +17,7 @@ body {
   overflow-x: hidden;
 }
 
-.get-teams-title {
+.get-workers-title {
   font-size: 22px;
   color: #585858;
   margin-bottom: 24px;
@@ -31,7 +25,7 @@ body {
   font-weight: 600;
 }
 
-.team-list {
+.worker-list {
   display: flex;
   flex-direction: row;
   gap: 16px;
@@ -39,25 +33,9 @@ body {
   padding: 8px 4px;
   list-style: none;
   margin: 0;
-
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
 }
 
-.team-list::-webkit-scrollbar {
-  height: 8px;
-}
-
-.team-list::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-.team-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.team-item {
+.worker-item {
   flex: 0 0 auto;
   width: 240px;
   background-color: #FFFFFF;
@@ -71,47 +49,24 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.team-item:hover {
+.worker-item:hover {
   border-color: #4CAF50;
   background-color: #f3fff3;
 }
 
-.team-item.selected {
+.worker-item.selected {
   border-color: #4CAF50;
   background-color: #e7ffe7;
   font-weight: bold;
 }
 
-.team-item-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.team-info-line {
+.worker-info-line {
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.team-info-label {
+.worker-info-label {
   font-weight: 500;
   color: #585858;
-}
-
-.team-info {
-  font-size: 16px;
-  color: #333;
-}
-
-.team-value {
-  color: #333;
-}
-
-.get-team-popover button {
-  transition: background-color 0.2s ease;
-}
-
-.get-team-popover button:hover {
-  background-color: #45a049;
 }

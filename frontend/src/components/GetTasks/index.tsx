@@ -19,11 +19,12 @@ export interface Task {
 }
 
 interface GetTaskProps {
-  onSelectTask: (task: Task) => void;
-  selectedTasks: Task[];
+  onSelectTask?: (task: Task, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+  selectedTasks?: Task[];
+  showAll?: boolean;
 }
 
-function GetTasks({ onSelectTask, selectedTasks }: GetTaskProps) {
+function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTaskProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -31,21 +32,26 @@ function GetTasks({ onSelectTask, selectedTasks }: GetTaskProps) {
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const response = await api.get<Task[]>('http://localhost:8000/api/v1/tasks/?status=pending', {
+        const url = showAll
+          ? 'http://localhost:8000/api/v1/tasks/'
+          : 'http://localhost:8000/api/v1/tasks/?status=pending';
+
+        const response = await api.get<Task[]>(url, {
           headers: {
             Authorization: `Bearer ${access}`,
           },
         });
+
         setTasks(response.data);
       } catch (error) {
-        console.error("Erro ao buscar tasks:", error);
+        console.error("Erro ao buscar tarefas:", error);
       }
     }
 
     if (access) {
       fetchTasks();
     }
-  }, [access]);
+  }, [access, showAll]);
 
   const isSelected = (task: Task) =>
     selectedTasks.some((selected) => selected.id === task.id);
@@ -53,19 +59,38 @@ function GetTasks({ onSelectTask, selectedTasks }: GetTaskProps) {
   return (
     <div className="get-tasks-container">
       <div className="get-tasks">
-        <h2 className="get-tasks-title">Selecione as Tarefas Pendentes:</h2>
+        <h2 className="get-tasks-title">
+          {showAll ? "Lista de Todas as Tarefas" : "Selecione as tarefas pendentes:"}
+        </h2>
+
         <ul className="task-list">
           {tasks.map((task) => (
             <li
               key={task.id}
-              onClick={() => onSelectTask(task)}
+              onClick={(event) => onSelectTask && onSelectTask(task, event)}
               className={`task-item ${isSelected(task) ? "selected" : ""}`}
+              style={{ cursor: onSelectTask ? "pointer" : "default" }}
             >
-              <strong>{`Tarefa #${task.id}`}</strong>
-              <br />
-              Equipe: {task.team_info?.name || "Sem equipe"}
-              <br />
-              Criada em: {new Date(task.created_at).toLocaleString()}
+              <div className="task-item-content">
+                <div className="task-info-line">
+                  <span className="task-info-label">Tarefa:</span>
+                  <span className="task-value">{`#${task.id}`}</span>
+                </div>
+                <div className="task-info-line">
+                  <span className="task-info-label">Equipe:</span>
+                  <span className="task-value">{task.team_info?.name || "Sem equipe"}</span>
+                </div>
+                <div className="task-info-line">
+                  <span className="task-info-label">Status:</span>
+                  <span className="task-value">{task.status}</span>
+                </div>
+                <div className="task-info-line">
+                  <span className="task-info-label">Criada em:</span>
+                  <span className="task-value">
+                    {new Date(task.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

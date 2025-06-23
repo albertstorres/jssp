@@ -28,7 +28,6 @@ class TaskInfoSerializer(serializers.ModelSerializer):
         return None
 
     def get_equipment_info(self, obj):
-        # Se necessário no futuro, associe equipamentos diretamente à task
         return None
 
 
@@ -65,7 +64,7 @@ class OperationCreateSerializer(serializers.ModelSerializer):
     equipment_ids = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
-        required=False  # ← Equipamento é opcional
+        required=False  # Equipamento é opcional
     )
 
     class Meta:

@@ -11,11 +11,11 @@ export interface Category {
 }
 
 interface GetCategoryProps {
-  onSelectCategory: (category: Category) => void;
-  selectedCategory: Category[];
+  onSelectCategory?: (category: Category, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+  selectedCategory?: Category[];
 }
 
-function GetCategories({ onSelectCategory, selectedCategory }: GetCategoryProps) {
+function GetCategories({ onSelectCategory, selectedCategory = [] }: GetCategoryProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -50,8 +50,9 @@ function GetCategories({ onSelectCategory, selectedCategory }: GetCategoryProps)
           {categories.map((category) => (
             <li
               key={category.id}
-              onClick={() => onSelectCategory(category)}
+              onClick={(event) => onSelectCategory && onSelectCategory(category, event)}
               className={`category-item ${isSelected(category) ? "selected" : ""}`}
+              style={{ cursor: onSelectCategory ? "pointer" : "default" }}
             >
               <div className="category-info-line">
                 <span className="category-info-label">Descrição:</span>
