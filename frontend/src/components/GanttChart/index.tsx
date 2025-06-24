@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 export interface GanttTask {
   operation: string;
   task: string;
-  equipment: string;
+  equipments: string[];   // Agora equipamentos é array de nomes
   team: string;
   begin: string;
   end: string;
@@ -22,24 +22,30 @@ const COLORS = [
 function GanttChart({ data }: GanttChartProps) {
   const uniqueOperations = Array.from(new Set(data.map(d => d.operation)));
 
-  const formattedData = data.map((task, index) => ({
-    x: [task.begin, task.end],
-    y: [task.operation],
-    type: 'bar',
-    orientation: 'h',
-    name: `${task.team} - ${task.equipment}`,
-    marker: {
-      color: COLORS[index % COLORS.length],
-    },
-    hovertemplate: `
-      <b>Operação:</b> ${task.operation}<br>
-      <b>Tarefa:</b> ${task.task}<br>
-      <b>Equipe:</b> ${task.team}<br>
-      <b>Equipamento:</b> ${task.equipment}<br>
-      <b>Início:</b> ${task.begin}<br>
-      <b>Fim:</b> ${task.end}<extra></extra>
-    `,
-  }));
+  const formattedData = data.map((task, index) => {
+    const equipmentsText = task.equipments.length > 0
+      ? task.equipments.join(', ')
+      : 'Sem equipamentos';
+
+    return {
+      x: [task.begin, task.end],
+      y: [task.operation],
+      type: 'bar',
+      orientation: 'h',
+      name: `${task.team} - ${equipmentsText}`,
+      marker: {
+        color: COLORS[index % COLORS.length],
+      },
+      hovertemplate: `
+        <b>Operação:</b> ${task.operation}<br>
+        <b>Tarefa:</b> ${task.task}<br>
+        <b>Equipe:</b> ${task.team}<br>
+        <b>Equipamentos:</b> ${equipmentsText}<br>
+        <b>Início:</b> ${task.begin}<br>
+        <b>Fim:</b> ${task.end}<extra></extra>
+      `,
+    };
+  });
 
   return (
     <div className="gantt-container">

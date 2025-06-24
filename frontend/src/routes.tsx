@@ -12,6 +12,8 @@ import CreateTask from './pages/CreateTask';
 import CreateTeam from './pages/CreateTeam';
 import CreateWorker from './pages/CreateWorker';
 
+import FinalizeTask from './components/FinalizeTask';
+
 import ListCategories from './pages/ListCategories';
 import ListEquipments from './pages/ListEquipments';
 import ListOperations from './pages/ListOperations';
@@ -25,6 +27,7 @@ import MenuOperations from './pages/MenuOperations';
 import MenuTasks from './pages/MenuTasks';
 import MenuTeams from './pages/MenuTeams';
 import MenuWorkers from './pages/MenuWorkers';
+import FinalizeTaskPage from './pages/FinalizeTask';
 
 
 type Props = {
@@ -54,6 +57,7 @@ function MainRoutes(){
                 <Route path={'/createTask'} element={<CreateTask />} />
                 <Route path={'/createEquipment'} element={<CreateEquipment />} />
                 <Route path={'/createWorker'} element={<CreateWorker />} />
+                <Route path={'/finalizeTask'} element={<FinalizeTaskPage />} />
                 <Route path={'/listCategories'} element={<ListCategories />} />
                 <Route path={'/listEquipments'} element={<ListEquipments />} />
                 <Route path={'/listOperations'} element={<ListOperations />} />

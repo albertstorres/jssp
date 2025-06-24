@@ -3,7 +3,6 @@ import Logo from '../../assets/Logo/Logo.svg'
 import UserName from '../UserName';
 
 function Header() {
-    const name = 'Albert'
 
     return(
         <header className='header'>
@@ -11,7 +10,7 @@ function Header() {
             <div className='board'>
 
             </div>
-            <UserName name={name} />
+            <UserName />
         </header>
     );
 }

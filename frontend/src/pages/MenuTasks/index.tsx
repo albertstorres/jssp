@@ -16,8 +16,8 @@ function MenuTasks() {
         <div className="bottom-box">
           <button className="bottom-button" onClick={() => navigate('/createTask/')}>Cadastrar Tarefa</button>
           <button className="bottom-button" onClick={() => navigate('/listTasks/')}>Listar Tarefas</button>
-          <button className="bottom-button">Editar Tarefa</button>
-          <button className="bottom-button">Remover Tarefa</button>
+          <button className="bottom-button" onClick={() => navigate('/finalizeTask/')}>Finalizar Tarefa</button>
+          <button className="bottom-button">Excluir Tarefa</button>
         </div>
       </div>
     </>

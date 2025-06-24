@@ -24,8 +24,10 @@ function SetTeam() {
         return;
       }
 
-      await api.post('/api/v1/teams/', { shift, name }, {
-        headers: { Authorization: `Bearer ${token}` }
+      await api.post('http://localhost:8000/api/v1/teams/', { shift, name }, {
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        }
       });
 
       setMessage({ type: 'success', text: 'Equipe cadastrada com sucesso!' });

@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import useAuth from "../hooks/useAuth";
-
-export interface OperationRow {
-  operation: string;
-  task: string;
-  equipment: string;
-  team: string;
-  begin: string;
-  end: string;
-}
+import { GanttTask } from "../components/GanttChart";
 
 interface RawOperation {
   id: number;
@@ -31,7 +23,7 @@ interface RawOperation {
 }
 
 function useOperations() {
-  const [data, setData] = useState<OperationRow[]>([]);
+  const [data, setData] = useState<GanttTask[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
 
@@ -47,13 +39,13 @@ function useOperations() {
           }
         );
 
-        const formatted: OperationRow[] = response.data.flatMap(operation =>
+        const formatted: GanttTask[] = response.data.flatMap(operation =>
           operation.tasks.map(task => ({
             operation: operation.name || `Operação #${operation.id}`,
             task: `Tarefa #${task.id}`,
-            equipment: operation.equipments.length > 0
-              ? operation.equipments.map(e => e.name).join(", ")
-              : "Sem equipamento",
+            equipments: operation.equipments.length > 0
+              ? operation.equipments.map(e => e.name)
+              : ["Sem equipamento"],
             team: task.team_info?.name || "Sem equipe",
             begin: operation.begin,
             end: operation.end,

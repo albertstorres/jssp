@@ -24,9 +24,9 @@ class Operation(models.Model):
         verbose_name='Criado em',
     )
     timespan = models.IntegerField(
-        verbose_name='Tempo total de conslusão',
         blank=True,
         null=True,
+        verbose_name='Tempo total de conclusão',
     )
     finalized = models.BooleanField(
         default=False,
@@ -39,4 +39,4 @@ class Operation(models.Model):
         verbose_name_plural = 'Operações'
     
     def __str__(self):
-        return self.name
+        return self.name or f'Operação #{self.id}'

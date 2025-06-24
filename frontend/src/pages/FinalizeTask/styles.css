@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&display=swap');
+
+.container-finalize-task {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.finalize-task {
+  width: 100%;
+  max-width: 1320px;
+  padding: 32px 48px 48px 48px;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.finalize-task-title {
+  font-size: 22px;
+  color: #585858;
+  text-align: center;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+/* POPUP / POPOVER */
+
+.get-task-popover {
+  position: absolute;
+  width: 400px;
+  max-width: 90vw;
+  background-color: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  font-family: 'DM Sans', sans-serif;
+  z-index: 9999;
+}
+
+.get-task-popover h2 {
+  font-size: 18px;
+  color: #333333;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.get-task-popover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.get-task-popover li {
+  padding: 8px 10px;
+  border-bottom: 1px solid #E0E0E0;
+  font-size: 14px;
+  color: #444;
+}
+
+.get-task-popover li:last-child {
+  border-bottom: none;
+}
+
+.get-task-popover .error-message {
+  color: #B00020;
+  background-color: #FFE0E0;
+  border: 1px solid #CC8888;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Botão Selecionar (posição onde estava o X) */
+
+.get-task-popover button {
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  float: right;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.get-task-popover button:hover {
+  background-color: #45a049;
+}

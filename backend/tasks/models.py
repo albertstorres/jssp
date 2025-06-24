@@ -37,15 +37,15 @@ class Task(models.Model):
         verbose_name = 'Criado em',
     )
     finished_at = models.DateTimeField(
-        default = None,
+        blank = True,
         null = True,
         verbose_name = 'Finalizado em',
     )
 
 
     class Meta:
-        verbose_name = 'Tarefa',
-        verbose_name_plural = 'Tarefas',
+        verbose_name = 'Tarefa'
+        verbose_name_plural = 'Tarefas'
 
     def __str__(self):
-        return self.id
+        return str(self.id)

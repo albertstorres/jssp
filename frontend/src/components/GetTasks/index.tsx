@@ -22,9 +22,17 @@ interface GetTaskProps {
   onSelectTask?: (task: Task, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
   selectedTasks?: Task[];
   showAll?: boolean;
+  reloadSignal?: number;
+  filterStatus?: 'pending' | 'in_progress' | 'finished';
 }
 
-function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTaskProps) {
+function GetTasks({
+  onSelectTask,
+  selectedTasks = [],
+  showAll = false,
+  reloadSignal,
+  filterStatus,
+}: GetTaskProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -32,9 +40,13 @@ function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTask
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const url = showAll
-          ? 'http://localhost:8000/api/v1/tasks/'
-          : 'http://localhost:8000/api/v1/tasks/?status=pending';
+        let url = 'http://localhost:8000/api/v1/tasks/';
+
+        if (filterStatus) {
+          url += `?status=${filterStatus}`;
+        } else if (!showAll) {
+          url += '?status=pending';
+        }
 
         const response = await api.get<Task[]>(url, {
           headers: {
@@ -51,7 +63,7 @@ function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTask
     if (access) {
       fetchTasks();
     }
-  }, [access, showAll]);
+  }, [access, showAll, reloadSignal, filterStatus]);
 
   const isSelected = (task: Task) =>
     selectedTasks.some((selected) => selected.id === task.id);
@@ -60,7 +72,11 @@ function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTask
     <div className="get-tasks-container">
       <div className="get-tasks">
         <h2 className="get-tasks-title">
-          {showAll ? "Lista de Todas as Tarefas" : "Selecione as tarefas pendentes:"}
+          {filterStatus === "in_progress"
+            ? "Selecione as Tarefas em Andamento:"
+            : showAll
+            ? "Lista de Todas as Tarefas"
+            : "Selecione as Tarefas Pendentes:"}
         </h2>
 
         <ul className="task-list">
@@ -99,4 +115,4 @@ function GetTasks({ onSelectTask, selectedTasks = [], showAll = false }: GetTask
   );
 }
 
-export default GetTasks;
+export default GetTasks

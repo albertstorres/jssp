@@ -1,14 +1,18 @@
-import './styles.css'
+import './styles.css';
+import useCurrentUser from '../../hooks/useCurrentUser';
 
-interface UserNameProps {
-    name: string;
+function UserName() {
+  const user = useCurrentUser();
+
+  let displayName = "Carregando...";
+
+  if (user) {
+    displayName = user.is_superuser ? user.username : user.first_name;
+  }
+
+  return (
+    <div className='user'>Usuário: {displayName}</div>
+  );
 }
-
-function UserName({name}: UserNameProps){
-    return(
-        <div className='user'>usuário: {name}</div>
-    );
-}
-
 
 export default UserName;
