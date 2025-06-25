@@ -10,6 +10,7 @@ function CreateTask() {
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [reloadTeams, setReloadTeams] = useState(0); // novo estado
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
 
@@ -52,6 +53,7 @@ function CreateTask() {
       setMessage({ type: 'success', text: 'Tarefa criada com sucesso!' });
       setSelectedTeams([]);
       setSelectedCategory(null);
+      setReloadTeams(prev => prev + 1); // força o recarregamento de GetTeams
 
       setTimeout(() => setMessage(null), 4000);
     } catch (error) {
@@ -85,6 +87,7 @@ function CreateTask() {
               <GetTeams
                 onSelectTeam={handleSelectTeam}
                 selectedTeams={selectedTeams}
+                reloadSignal={reloadTeams} // prop para forçar recarregamento
               />
             </div>
           </div>

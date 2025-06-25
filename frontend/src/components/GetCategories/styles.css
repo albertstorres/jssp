@@ -59,16 +59,20 @@ body {
 
 .category-item {
   flex: 0 0 auto;
-  width: 200px;
+  width: 210px;
   background-color: #FFFFFF;
-  border: 1px solid #CCCCCC;;
+  border: 1px solid #CCCCCC;
   border-radius: 12px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   font-size: 16px;
   color: #333;
   cursor: pointer;
   transition: border-color 0.3s ease, background-color 0.3s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .category-item:hover {

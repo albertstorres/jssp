@@ -42,7 +42,7 @@ function FinalizeTaskPage() {
             onSelectTask={handleTaskSelect}
             selectedTasks={selectedTask ? [selectedTask] : []}
             reloadSignal={reloadSignal}
-            filterStatus="in_progress"   // ← Aqui força listar só tarefas em andamento
+            filterStatus="in_progress"   //Força listar só tarefas em andamento
           />
 
           {selectedTask && popoverPosition && (

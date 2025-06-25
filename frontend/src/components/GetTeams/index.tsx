@@ -14,9 +14,15 @@ interface GetTeamProps {
   onSelectTeam?: (team: Team, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
   selectedTeams?: Team[];
   showAll?: boolean;
+  reloadSignal?: number; // <- Novo prop para recarregar equipes externamente
 }
 
-function GetTeams({ onSelectTeam, selectedTeams = [], showAll = false }: GetTeamProps) {
+function GetTeams({
+  onSelectTeam,
+  selectedTeams = [],
+  showAll = false,
+  reloadSignal,
+}: GetTeamProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -34,7 +40,11 @@ function GetTeams({ onSelectTeam, selectedTeams = [], showAll = false }: GetTeam
           },
         });
 
-        setTeams(response.data);
+        const sortedTeams = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setTeams(sortedTeams);
       } catch (error) {
         console.error("Erro ao buscar equipes:", error);
       }
@@ -43,7 +53,7 @@ function GetTeams({ onSelectTeam, selectedTeams = [], showAll = false }: GetTeam
     if (access) {
       fetchTeams();
     }
-  }, [access, showAll]);
+  }, [access, showAll, reloadSignal]); // <- Atualiza quando reloadSignal muda
 
   const isSelected = (team: Team) =>
     selectedTeams.some((selected) => selected.id === team.id);

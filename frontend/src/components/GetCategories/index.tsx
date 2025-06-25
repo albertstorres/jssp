@@ -64,7 +64,7 @@ function GetCategories({ onSelectCategory, selectedCategory = [] }: GetCategoryP
               </div>
               <div className="category-info-line">
                 <span className="category-info-label">Tempo estimado:</span>
-                <span className="category-info-value">{category.estimated_time} min</span>
+                <span className="category-info-value">{Math.round(category.estimated_time / 60)} min</span>
               </div>
             </li>
           ))}

@@ -14,9 +14,15 @@ interface GetEquipmentProps {
   onSelectEquipment?: (equipment: Equipment, event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
   selectedEquipments?: Equipment[];
   showAll?: boolean;
+  reloadSignal?: number; // <- NOVO: força atualização externa
 }
 
-function GetEquipments({ onSelectEquipment, selectedEquipments = [], showAll = false }: GetEquipmentProps) {
+function GetEquipments({
+  onSelectEquipment,
+  selectedEquipments = [],
+  showAll = false,
+  reloadSignal,
+}: GetEquipmentProps) {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -34,7 +40,11 @@ function GetEquipments({ onSelectEquipment, selectedEquipments = [], showAll = f
           },
         });
 
-        setEquipments(response.data);
+        const sortedEquipments = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setEquipments(sortedEquipments);
       } catch (error) {
         console.error("Erro ao buscar equipamentos:", error);
       }
@@ -43,7 +53,7 @@ function GetEquipments({ onSelectEquipment, selectedEquipments = [], showAll = f
     if (access) {
       fetchEquipments();
     }
-  }, [access, showAll]);
+  }, [access, showAll, reloadSignal]); // <- ATUALIZA quando reloadSignal muda
 
   const isSelected = (equipment: Equipment) =>
     selectedEquipments.some((selected) => selected.id === equipment.id);
