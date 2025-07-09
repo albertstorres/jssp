@@ -60,7 +60,7 @@ class OperationCreateSerializer(serializers.ModelSerializer):
     equipment_ids = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
-        required=False  # Equipamento é opcional
+        required=False
     )
 
     class Meta:

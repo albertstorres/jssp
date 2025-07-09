@@ -50,7 +50,7 @@ function GetTask({ taskId }: GetTaskProps) {
       <p><strong>Criada em:</strong> {new Date(task.created_at).toLocaleString()}</p>
       <p><strong>Finalizada em:</strong> {task.finished_at ? new Date(task.finished_at).toLocaleString() : "Ainda não finalizada"}</p>
       <p><strong>ID da Equipe:</strong> {task.team}</p>
-      <p><strong>ID da Categoria:</strong> {task.categorie}</p>
+      <p><strong>Descrição da Categoria:</strong> {task.categorie}</p>
     </div>
   );
 }

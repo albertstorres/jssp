@@ -4,10 +4,13 @@ import Header from '../../components/Header';
 import GetTasks, { Task } from '../../components/GetTasks';
 import GetEquipments, { Equipment } from '../../components/GetEquipments';
 import SetOperation from '../../components/SetOperation';
+import SelectClassicOptimization from '../../components/SelectClassicOptimization';
+import SelectQuantumOptimization from '../../components/SelectQuantumOptimization';
 
 function CreateOperation() {
   const [selectedTasks, setSelectedTasks] = useState<Task[]>([]);
   const [selectedEquipments, setSelectedEquipments] = useState<Equipment[]>([]);
+  const [optimizationType, setOptimizationType] = useState<'classic' | 'quantum' | null>(null);
   const [reloadSignal, setReloadSignal] = useState(0);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -28,9 +31,9 @@ function CreateOperation() {
   function handleSuccess() {
     setSelectedTasks([]);
     setSelectedEquipments([]);
+    setOptimizationType(null);
     setMessage({ type: 'success', text: 'Operação criada com sucesso!' });
     setReloadSignal((prev) => prev + 1);
-
     setTimeout(() => setMessage(null), 4000);
   }
 
@@ -63,11 +66,23 @@ function CreateOperation() {
           />
         </section>
 
+        <div className="optimization-selector-container">
+          <SelectClassicOptimization
+            onClick={() => setOptimizationType('classic')}
+            isSelected={optimizationType === 'classic'}
+          />
+          <SelectQuantumOptimization
+            onClick={() => setOptimizationType('quantum')}
+            isSelected={optimizationType === 'quantum'}
+          />
+        </div>
+
         <section className="action-section">
           <SetOperation
             selectedTaskIds={selectedTasks.map((t) => t.id)}
             selectedEquipmentIds={selectedEquipments.map((e) => e.id)}
             onSuccess={handleSuccess}
+            optimizationType={optimizationType} // se precisar usar no backend
           />
         </section>
       </main>

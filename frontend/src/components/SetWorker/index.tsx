@@ -6,7 +6,10 @@ import { Team } from '../GetTeams';
 
 export interface Worker {
   team: number;
-  name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
 }
 
 interface SetWorkerProps {
@@ -17,7 +20,10 @@ function SetWorker({ selectedTeam }: SetWorkerProps) {
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
 
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
   async function handleSubmit(event: React.FormEvent) {
@@ -29,10 +35,15 @@ function SetWorker({ selectedTeam }: SetWorkerProps) {
     }
 
     try {
+      const url = 'http://localhost:8000/api/v1/workers/';
+
       const response = await api.post<Worker>(
-        'http://localhost:8000/api/v1/workers/',
+        url,
         {
-          name,
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
           team: selectedTeam.id,
         },
         {
@@ -42,8 +53,11 @@ function SetWorker({ selectedTeam }: SetWorkerProps) {
         }
       );
 
-      setMessage(`Trabalhador "${response.data.name}" cadastrado com sucesso!`);
-      setName('');
+      setMessage(`Trabalhador "${response.data.first_name} ${response.data.last_name}" cadastrado com sucesso!`);
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPassword('');
     } catch (error) {
       console.error('Erro ao cadastrar trabalhador:', error);
       setMessage('Erro ao cadastrar trabalhador.');
@@ -57,9 +71,42 @@ function SetWorker({ selectedTeam }: SetWorkerProps) {
           <label>Nome:</label>
           <input
             type="text"
-            value={name}
-            placeholder="Ex: João da Silva"
-            onChange={(e) => setName(e.target.value)}
+            value={firstName}
+            placeholder="Ex: João"
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Sobrenome:</label>
+          <input
+            type="text"
+            value={lastName}
+            placeholder="Ex: da Silva"
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>E-mail:</label>
+          <input
+            type="email"
+            value={email}
+            placeholder="Ex: joao@email.com"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Senha:</label>
+          <input
+            type="password"
+            value={password}
+            placeholder="Digite uma senha"
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>

@@ -1,5 +1,5 @@
 import './styles.css';
-import { useState  } from 'react';
+import { useState } from 'react';
 import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 
@@ -7,9 +7,15 @@ interface SetOperartionProps {
     selectedTaskIds: number[];
     selectedEquipmentIds: number[];
     onSuccess?: () => void;
+    optimizationType?: 'classic' | 'quantum' | null;
 }
 
-function SetOperation({ selectedTaskIds, selectedEquipmentIds, onSuccess }: SetOperartionProps) {
+function SetOperation({
+    selectedTaskIds,
+    selectedEquipmentIds,
+    onSuccess,
+    optimizationType,
+}: SetOperartionProps) {
     const { handleGetToken } = useAuth();
     const access = handleGetToken();
 
@@ -20,7 +26,7 @@ function SetOperation({ selectedTaskIds, selectedEquipmentIds, onSuccess }: SetO
         event.preventDefault();
 
         if (!selectedTaskIds.length || !name.trim()) {
-            setMessage('Selecione pelo menos uma tarefa e um nome para a operação. ');
+            setMessage('Selecione pelo menos uma tarefa e um nome para a operação.');
             return;
         }
 
@@ -31,7 +37,7 @@ function SetOperation({ selectedTaskIds, selectedEquipmentIds, onSuccess }: SetO
                     name,
                     task_ids: selectedTaskIds,
                     equipment_ids: selectedEquipmentIds,
-                    equipment: selectedEquipmentIds.length > 0 ? selectedEquipmentIds : undefined,
+                    optimization_type: optimizationType, // ← Envia o tipo de otimização se definido
                 },
                 {
                     headers: {
@@ -43,8 +49,7 @@ function SetOperation({ selectedTaskIds, selectedEquipmentIds, onSuccess }: SetO
             console.log('Operação criada com sucesso: ', response.data);
             setMessage('Operação criada com sucesso.');
             if (onSuccess) onSuccess();
-
-        } catch(error) {
+        } catch (error) {
             console.error('Erro ao criar operação: ', error);
             setMessage('Erro ao criar operação.');
         }
@@ -61,12 +66,14 @@ function SetOperation({ selectedTaskIds, selectedEquipmentIds, onSuccess }: SetO
                     onChange={(e) => setName(e.target.value)}
                     required
                 />
+                {optimizationType && (
+                    <p className="selected-optimization">Tipo: <strong>{optimizationType === 'classic' ? 'Otimização Clássica' : 'Otimização Quântica'}</strong></p>
+                )}
                 <button type="submit" className="create-operation-button">Criar operação</button>
                 {message && <p className="feedback-message">{message}</p>}
             </form>
         </div>
     );
 }
-
 
 export default SetOperation;

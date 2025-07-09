@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from operators.models import Operator
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 
 class OperatorSerializer(serializers.ModelSerializer):
@@ -21,5 +21,7 @@ class OperatorSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Usuário já cadastrado.')
         except User.DoesNotExist:
             user = User.objects.create_user(username=username, password=password)
+            operators_group = Group.objects.get(name='operators')
+            user.groups.add(operators_group)
             operator = Operator.objects.create(user=user)
             return operator

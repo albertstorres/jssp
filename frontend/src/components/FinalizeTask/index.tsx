@@ -5,7 +5,7 @@ import useAuth from '../../hooks/useAuth';
 
 interface FinalizeTaskProps {
   taskId: number;
-  onTaskFinalized: () => void;  // NOVO: Callback para sinalizar a página
+  onTaskFinalized: () => void;  //Callback para sinalizar a página
 }
 
 function FinalizeTask({ taskId, onTaskFinalized }: FinalizeTaskProps) {
@@ -15,8 +15,10 @@ function FinalizeTask({ taskId, onTaskFinalized }: FinalizeTaskProps) {
 
   async function handleFinalize() {
     try {
+      const url = `http://localhost:8000/api/v1/tasks/${taskId}/`;
+      
       await api.patch(
-        `http://localhost:8000/api/v1/tasks/${taskId}/`,
+        url,
         { status: 'finished' },
         {
           headers: {

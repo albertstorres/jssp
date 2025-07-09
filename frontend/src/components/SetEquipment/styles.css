@@ -9,7 +9,7 @@
 
 .set-equipment {
     background-color: #FFFFFF;
-    width: 640px; /* ← aumentada */
+    width: 640px; /* aumentada */
     height: auto;
     display: flex;
     flex-direction: column;

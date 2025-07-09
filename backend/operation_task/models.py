@@ -7,13 +7,13 @@ class OperationTask(models.Model):
     operation = models.ForeignKey(
         Operation,
         on_delete=models.CASCADE,
-        related_name='operation_tasks',  # Nome correto para o reverso: operation.operation_tasks.all()
+        related_name='operation_tasks',  
         verbose_name='Operação',
     )
     task = models.ForeignKey(
         Task,
         on_delete=models.CASCADE,
-        related_name='operation_tasks',  # Nome correto para o reverso: task.operation_tasks.all()
+        related_name='operation_tasks',
         verbose_name='Tarefa',
     )
 

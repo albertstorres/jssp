@@ -2,7 +2,10 @@ import { Navigate, Outlet, Route, Routes} from 'react-router-dom';
 
 import useAuth from './hooks/useAuth';
 
+import RequireGroup from './components/RequireGroup';
+
 import Main from './pages/Main';
+import MainWorker from './pages/MainWorker';
 import SignIn from './pages/SignIn';
 
 import CreateCategory from './pages/CreateCategory';
@@ -12,7 +15,7 @@ import CreateTask from './pages/CreateTask';
 import CreateTeam from './pages/CreateTeam';
 import CreateWorker from './pages/CreateWorker';
 
-import FinalizeTask from './components/FinalizeTask';
+import FinalizeTaskPage from './pages/FinalizeTask';
 
 import ListCategories from './pages/ListCategories';
 import ListEquipments from './pages/ListEquipments';
@@ -27,7 +30,6 @@ import MenuOperations from './pages/MenuOperations';
 import MenuTasks from './pages/MenuTasks';
 import MenuTeams from './pages/MenuTeams';
 import MenuWorkers from './pages/MenuWorkers';
-import FinalizeTaskPage from './pages/FinalizeTask';
 
 
 type Props = {
@@ -44,7 +46,16 @@ function MainRoutes(){
         <Routes>
             <Route path={'/'} element={<SignIn />} />
             <Route element={<ProtectedRoutes redirectTo='/' />}>
-                <Route path={'/main'} element={<Main />} />
+                <Route path={'/main'} element={
+                    <RequireGroup allowedGroups={['administrators', 'operators']}>
+                        <Main />
+                    </RequireGroup>
+                } />
+                <Route path={'/mainWorker'} element={
+                    <RequireGroup allowedGroups={['workers']}>
+                        <MainWorker />
+                    </RequireGroup>
+                }/>
                 <Route path={'/menuCategories'} element={<MenuCategories />} />
                 <Route path={'/menuEquipments'} element={<MenuEquipments />} />
                 <Route path={'/menuOperations'} element={<MenuOperations />} />

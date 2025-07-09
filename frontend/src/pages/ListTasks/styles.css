@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000&display=swap');
+
+.list-tasks-container {
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.main-title {
+  margin-bottom: 32px;
+}
+
+.main-title h1 {
+  font-size: 26px;
+  color: #585858;
+  font-weight: 600;
+  text-align: center;
+}
+
+.get-task-popover {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  width: 320px;
+  box-sizing: border-box;
+  font-family: 'DM Sans', sans-serif;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.get-task-popover button {
+  font-family: 'DM Sans', sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

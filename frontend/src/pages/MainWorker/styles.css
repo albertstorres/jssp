@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap');
+
+.container-main-worker {
+  width: 100%;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.main-worker {
+  width: 100%;
+  max-width: 1320px;
+  background-color: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #C8C8C8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.main-worker-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.get-task-popover {
+  background-color: white;
+  padding: 24px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
