@@ -31,8 +31,9 @@ function SetOperation({
         }
 
         try {
+            const url = 'http://localhost:8000/api/v1/operations/';
             const response = await api.post(
-                'http://localhost:8000/api/v1/operations/',
+                url,
                 {
                     name,
                     task_ids: selectedTaskIds,

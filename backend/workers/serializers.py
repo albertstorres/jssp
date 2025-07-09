@@ -10,7 +10,7 @@ class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Worker
-        fields = ['first_name', 'last_name', 'email', 'password', 'team']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'team']
 
     def create(self, validated_data):
         username = validated_data.pop('email')

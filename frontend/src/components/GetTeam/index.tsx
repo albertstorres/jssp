@@ -5,7 +5,8 @@ import useAuth from '../../hooks/useAuth';
 
 interface Worker {
     id: number;
-    name: string;
+    first_name: string;
+    last_name: string;
     team: number;
 }
 
@@ -75,7 +76,7 @@ function GetTeam({ teamId }: GetTeamProps) {
             {workers.length > 0 ? (
             <ul>
                 {workers.map((worker) => (
-                <li key={worker.id}>{worker.name}</li>
+                <li key={worker.id}>{worker.first_name} {worker.last_name}</li>
                 ))}
             </ul>
             ) : (

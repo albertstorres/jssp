@@ -5,7 +5,8 @@ import useAuth from "../../hooks/useAuth";
 
 export interface Worker {
   id: number;
-  name: string;
+  first_name: string;
+  last_name: string;
   team: number;
 }
 
@@ -87,7 +88,7 @@ function GetWorkers({ onSelectWorker, selectedWorkers = [] }: GetWorkerProps) {
             >
               <div className="worker-info-line">
                 <span className="worker-info-label">Nome:</span>
-                <span className="worker-info-value">{worker.name}</span>
+                <span className="worker-info-value">{worker.first_name} {worker.last_name}</span>
               </div>
               <div className="worker-info-line">
                 <span className="worker-info-label">Equipe:</span>
