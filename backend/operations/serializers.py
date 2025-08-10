@@ -1,3 +1,4 @@
+import requests
 from rest_framework import serializers
 from django.utils import timezone
 from datetime import timedelta
@@ -6,6 +7,14 @@ from operations.models import Operation
 from tasks.models import Task
 from operation_task.models import OperationTask
 from equipment_operation.models import EquipmentOperation
+
+from optimizations.classic_optimization import run_optimization
+
+# Endpoints externos
+#OPTIMIZATION_ENDPOINTS = {
+#    'classic': 'http://localhost:5000/optimize/classic',
+#    'quantum': 'http://localhost:5000/optimize/quantum',
+#}
 
 
 # Serializer auxiliar para informações da equipe (sem equipment_info)
@@ -62,6 +71,9 @@ class OperationCreateSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    optimization_type = serializers.ChoiceField(
+        choices=['classic', 'quantum'], write_only=True, required=True
+    )
 
     class Meta:
         model = Operation
@@ -71,12 +83,14 @@ class OperationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         task_ids = validated_data.pop('task_ids', [])
         equipment_ids = validated_data.pop('equipment_ids', [])
+        optimization_type = validated_data.pop('optimization_type', None)
 
-        base_time = timezone.now()
+        #base_time = timezone.now()
         total_duration = timedelta()
         tasks = []
 
         from teams.models import Team  # Para atualizar equipe dentro do loop
+        from equipment.models import Equipment
 
         # Buscar tarefas e somar tempo total
         for task_id in task_ids:
@@ -88,22 +102,82 @@ class OperationCreateSerializer(serializers.ModelSerializer):
             except Task.DoesNotExist:
                 raise serializers.ValidationError({'task_ids': f'Tarefa {task_id} não cadastrada.'})
 
-        # Criar a operação
-        operation = Operation.objects.create(
-            begin=base_time,
-            end=base_time + total_duration,
-            timespan=int(total_duration.total_seconds()),
-            **validated_data
-        )
+        equipments = []
+        for eq_id in equipment_ids:
+            try:
+                eq = Equipment.objects.get(id=eq_id)
+                equipments.append(eq)
+            except Equipment.DoesNotExist:
+                raise serializers.ValidationError({'equipment_ids': f'Equipamento {eq_id} não encontrado.'})
+        
+        # Montar objeto para sistema externo
+        jobs = {
+            "jobs": {
+                validated_data.get("name", f"Op {timezone.now().isoformat()}"): [(
+                    [f"Machine {task.team.id}" if task.team else "Unknown" for task in tasks],  #usable_machines
+                    [eq.name for eq in equipments], #equipments_needed
+                    int(total_duration.total_seconds()), #duration
+                    [task.id for task in tasks], #task_ids
+                    [eq.id for eq in equipments] #equipment_ids
+                )]
+            }
+        }
+
+        #endpoint = OPTIMIZATION_ENDPOINTS.get(optimization_type)
+        #if not endpoint:
+        #    raise serializers.ValidationError({'optimization_type': 'Tipo de otimização inválido'})
+        #
+        #try:
+        #    response = requests.post(endpoint, json=jobs)
+        #    response.raise_for_status()
+        #    external_operations = response.json()
+        #except requests.RequestException as e:
+        #    raise serializers.ValidationError({'external_error': str(e)})
+
+        external_operations = run_optimization(jobs)
+        #print(external_operations)
+        
+        # Retorno esperado:
+        #[
+        #{
+        #    "name": "Op A",
+        #    "begin": "2025-07-01T10:00:00",
+        #    "end": "2025-07-01T12:00:00",
+        #    "timespan": 7200,
+        #    "task_ids": [1, 2],
+        #    "equipment_ids": [5, 6]
+        #},
+        #...
+        #]
+        
+        created_operations = []
+        for op_data in external_operations:
+            operation = Operation.objects.create(
+                #name = op_data.get('name'),
+                begin = timezone.datetime.fromisoformat(op_data.get('begin')),
+                end = timezone.datetime.fromisoformat(op_data.get('end')),
+                timespan = op_data.get('timespan'),
+                finalized = op_data.get('finalized', False),
+                **validated_data
+            )
+        created_operations.append(operation)
+
+        # Criar a operação antiga
+        #operation = Operation.objects.create(
+        #    begin=base_time,
+        #    end=base_time + total_duration,
+        #    timespan=int(total_duration.total_seconds()),
+        #    **validated_data
+        #)
 
         # Associar tarefas + atualizar status + setar equipe como ocupada
         for task in tasks:
             OperationTask.objects.get_or_create(operation=operation, task=task)
-
+        
             if task.status == 'pending':
                 task.status = 'in_progress'
                 task.save()
-
+        
                 # Se a tarefa tiver uma equipe, marca como ocupada
                 if task.team:
                     task.team.is_ocupied = True
@@ -119,4 +193,5 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                 except Equipment.DoesNotExist:
                     raise serializers.ValidationError({'equipment_ids': f'Equipamento {eq_id} não encontrado.'})
 
-        return operation
+        return created_operations[0] if len(created_operations) == 1 else created_operations
+        #return external_operations

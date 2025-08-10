@@ -14,7 +14,6 @@ class Operation(models.Model):
         verbose_name='Início',
     )
     end = models.DateTimeField(
-        auto_now = True,
         null=True,
         blank=True,
         verbose_name='Fim',

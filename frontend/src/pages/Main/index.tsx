@@ -25,7 +25,7 @@ function Main() {
         {/* NOVO CONTAINER LAYOUT */}
         <div className="main-content">
           <div className="left-box">
-            {/* ← Caixa da esquerda vazia */}
+            
           </div>
 
           <div className="right-box">
