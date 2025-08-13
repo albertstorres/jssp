@@ -20,6 +20,16 @@ class TeamTask(models.Model):
         related_name = 'TeamTask',
         verbose_name = 'Equipe',
     )
+    begin = models.DateTimeField(
+        blank = True,
+        null = True,
+        verbose_name = 'Início da execução',
+    )
+    end = models.DateTimeField(
+        blank = True,
+        null = True,
+        verbose_name = 'Fim da execução',
+    )
 
 
     class Meta:
@@ -27,4 +37,4 @@ class TeamTask(models.Model):
         verbose_name_plural = 'Equipes Tarefas'
     
     def __str__(self):
-        return self.id
+        return f"{self.team} - {self.task} ({self.begin} - {self.end})"

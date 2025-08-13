@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'equipment',
     'equipment_operation',
     'operation_task',
+    'operation_team',
     'operations',
     'operators',
     'tasks',

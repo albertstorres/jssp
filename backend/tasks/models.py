@@ -1,5 +1,4 @@
 from django.db import models
-from teams.models import Team
 from categories.models import Category
 
 
@@ -14,14 +13,6 @@ class Task(models.Model):
         choices = STATUS_CHOICES,
         default = 'pending',
         verbose_name = 'Status',
-    )
-    team = models.ForeignKey(
-        Team,
-        on_delete = models.PROTECT,
-        null = True,
-        blank = True,
-        related_name = 'Teams',
-        verbose_name = 'Equipe',
     )
     category = models.ForeignKey(
         Category,

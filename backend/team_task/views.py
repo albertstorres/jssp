@@ -1,7 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from team_task.serializers import TeamTaskSerializer
 from team_task.models import TeamTask
+from team_task.serializers import TeamTaskSerializer
 
 
 class TeamTaskViewSet(viewsets.ModelViewSet):
@@ -11,9 +11,9 @@ class TeamTaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = TeamTask.objects.all()
-        team_id = self.request.query_params.get('team')
-
-        if team_id:
-            queryset = queryset.filter(team_id = team_id)
+        task_param = self.request.query_params.get('task')
         
+        if task_param:
+            queryset = queryset.filter(task_id=task_param)
+            
         return queryset

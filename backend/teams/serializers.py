@@ -3,8 +3,7 @@ from teams.models import Team
 
 
 class TeamSerializer(serializers.ModelSerializer):
-
-
+    """Serializer para equipes - retorna apenas campos obrigatórios"""
     class Meta:
         model = Team
-        fields = '__all__'
+        fields = ['id', 'name']

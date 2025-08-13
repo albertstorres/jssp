@@ -11,10 +11,12 @@
 
 .create-operation {
   background-color: #FFFFFF;
-  width: 640px;
+  width: 100%;
+  max-width: 1260px;
   padding: 32px 48px 48px 48px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .create-operation-title {
@@ -28,27 +30,33 @@
 
 .operation-layout {
   display: flex;
-  flex-direction: row;
-  gap: 24px;
+  flex-direction: column;
+  gap: 32px;
   margin-bottom: 32px;
-  flex-wrap: wrap;
 }
 
 .task-selection-box,
-.equipment-selection-box {
-  flex: 1;
-  min-width: 240px;
+.equipment-selection-box,
+.team-selection-box {
+  width: 100%;
+  background-color: #fefefe;
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  box-sizing: border-box;
 }
 
 .task-list,
-.equipment-list {
+.equipment-list,
+.team-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .task-item,
-.equipment-item {
+.equipment-item,
+.team-item {
   padding: 14px 18px;
   margin-bottom: 12px;
   background-color: #f9f9f9;
@@ -61,24 +69,16 @@
 }
 
 .task-item:hover,
-.equipment-item:hover {
+.equipment-item:hover,
+.team-item:hover {
   background-color: #eefef0;
 }
 
 .task-item.selected,
-.equipment-item.selected {
+.equipment-item.selected,
+.team-item.selected {
   background-color: #d4f7dc;
   border-color: #88cc88;
-}
-
-.selected-tasks-box {
-  margin-top: 32px;
-  background-color: #f8f9fa;
-  border: 1px solid #C8C8C8;
-  border-radius: 10px;
-  padding: 16px;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 .feedback-message {
@@ -102,6 +102,30 @@
 
 .feedback-message.error {
   background-color: #fdecea;
-  color:#FF3A29;
+  color: #FF3A29;
   border: 1px solid #f5a4a4;
+}
+
+.submit-button {
+  padding: 14px 48px;
+  background-color: #34B53A;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  align-self: center;
+  margin-top: 12px;
+  min-width: 200px;
+  max-width: 300px;
+  width: auto;
+  display: block;
+}
+
+.submit-button:hover {
+  background-color: #2ea934;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }

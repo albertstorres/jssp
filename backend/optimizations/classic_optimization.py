@@ -4,7 +4,10 @@ from mealpy import SA
 from mealpy.utils.space import FloatVar
 from django.utils import timezone
 from datetime import timedelta
-from optimizations.plot_gantt_chart.plot_gantt_chart import plot_gantt
+import logging
+
+# Configurar logging para reduzir verbosidade
+logging.getLogger('mealpy').setLevel(logging.WARNING)
 
 
 def make_fitness_function(instance: jssp):
@@ -42,8 +45,6 @@ def decode_solution(solution_vec, operations):
     machine_available = {}
     job_available = {}
 
-    print("Ordem com máquina usada:")
-
     for i, idx in enumerate(order):
         op = operations[idx]
         job = op["job"]
@@ -54,8 +55,6 @@ def decode_solution(solution_vec, operations):
 
         machine_available[machine] = end_time
         job_available[job] = end_time
-
-        #print(f"{i+1}: {op['job']}, Máquina {machine}, Duração {op['duration']}, Início {start_time}, Fim {end_time}")
 
 
 def simulate_schedule(solution_vec, operations):
@@ -105,14 +104,9 @@ def run_optimization(data: dict, start_datetime=None):
     model = SA.OriginalSA(epoch=1000)
     g_best = model.solve(problem)
 
-    print("Melhor vetor:", g_best.solution)
-    print("Melhor makespan:", g_best.target.fitness)
     decode_solution(g_best.solution, operations)
 
     schedule = simulate_schedule(g_best.solution, operations)
-
-    # Gera o gráfico de Gantt e salva como imagem
-    plot_gantt(schedule, filename="media/gantt.png")
 
     results = []
     for job in instance.jobs:
@@ -124,13 +118,31 @@ def run_optimization(data: dict, start_datetime=None):
         start = min(op["start"] for op in ops)
         end = max(op["end"] for op in ops)
 
-        results.append({
+        # Criar resultado com informações de alocação de equipes
+        result = {
             "name": job.name,
             "begin": (start_datetime + timedelta(seconds=start)).isoformat(),
             "end": (start_datetime + timedelta(seconds=end)).isoformat(),
             "timespan": end - start,
             "task_ids": job.tasks_ids,
             "equipment_ids": job.equipments_ids,
-        })
+            "team_assignments": []  # Nova estrutura para alocação de equipes
+        }
+        
+        # Adicionar alocação de equipes baseada no schedule
+        if hasattr(job, 'usable_machines') and job.usable_machines:
+            for i, team_name in enumerate(job.usable_machines):
+                if team_name != "Unknown":
+                    # Calcular horários para cada equipe
+                    team_start = start_datetime + timedelta(seconds=start + (i * (end - start) / len(job.usable_machines)))
+                    team_end = start_datetime + timedelta(seconds=start + ((i + 1) * (end - start) / len(job.usable_machines)))
+                    
+                    result["team_assignments"].append({
+                        "team_name": team_name,
+                        "begin_time": team_start.isoformat(),
+                        "end_time": team_end.isoformat()
+                    })
+
+        results.append(result)
 
     return results

@@ -1,59 +1,39 @@
 import './styles.css';
 import Header from '../../components/Header';
-import GetTeams, { Team } from '../../components/GetTeams';
 import GetCategories, { Category } from '../../components/GetCategories';
 import { useState } from 'react';
 import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 
 function CreateTask() {
-  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [reloadTeams, setReloadTeams] = useState(0); // novo estado
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
-
-  const toggleSelection = <T extends { id: number }>(array: T[], item: T): T[] => {
-    return array.some((i) => i.id === item.id)
-      ? array.filter((i) => i.id !== item.id)
-      : [...array, item];
-  };
-
-  const handleSelectTeam = (team: Team) => {
-    setSelectedTeams((prev) => toggleSelection(prev, team));
-  };
 
   const handleSelectCategory = (category: Category) => {
     setSelectedCategory(category.id === selectedCategory?.id ? null : category);
   };
 
   const handleSubmit = async () => {
-    if (!selectedCategory || selectedTeams.length === 0) {
-      setMessage({ type: 'error', text: 'Selecione pelo menos uma equipe e uma categoria.' });
+    if (!selectedCategory) {
+      setMessage({ type: 'error', text: 'Selecione pelo menos uma categoria.' });
       return;
     }
 
     try {
-      const request = selectedTeams.map((team) => ({
-        team: team.id,
+      const request = {
         category: selectedCategory.id,
-      }));
+      };
 
-      await Promise.all(
-        request.map((data) =>
-          api.post('http://localhost:8000/api/v1/tasks/', data, {
-            headers: {
-              Authorization: `Bearer ${access}`,
-            },
-          })
-        )
-      );
+      await api.post('http://localhost:8000/api/v1/tasks/', request, {
+        headers: {
+          Authorization: `Bearer ${access}`,
+        },
+      });
 
       setMessage({ type: 'success', text: 'Tarefa criada com sucesso!' });
-      setSelectedTeams([]);
       setSelectedCategory(null);
-      setReloadTeams(prev => prev + 1); // força o recarregamento de GetTeams
 
       setTimeout(() => setMessage(null), 4000);
     } catch (error) {
@@ -80,14 +60,6 @@ function CreateTask() {
               <GetCategories
                 onSelectCategory={handleSelectCategory}
                 selectedCategory={selectedCategory ? [selectedCategory] : []}
-              />
-            </div>
-
-            <div className="team-selection-box">
-              <GetTeams
-                onSelectTeam={handleSelectTeam}
-                selectedTeams={selectedTeams}
-                reloadSignal={reloadTeams} // prop para forçar recarregamento
               />
             </div>
           </div>
