@@ -34,11 +34,9 @@ interface TeamInfo {
 interface TeamTask {
   id: number;
   team: number;
-  task: number;
-  task_id: number;
-  task_status: string;
-  begin?: string;
-  end?: string;
+  task: number; // ID da tarefa (não task_id)
+  begin: string;
+  end: string;
 }
 
 function useOperations() {
@@ -90,92 +88,148 @@ function useOperations() {
           return;
         }
 
-        // Buscar detalhes de cada tarefa para obter os tempos individuais
+        // Coletar todos os IDs de tarefas das operações em aberto
+        const allTaskIds = openOperations.flatMap(op => op.tasks);
+        console.log('=== TODAS AS TAREFAS DAS OPERAÇÕES ===');
+        console.log('IDs das tarefas:', allTaskIds);
+
+        // Buscar TODOS os team_tasks de uma vez
+        console.log('=== BUSCANDO TEAM_TASKS ===');
+        const allTeamTasks: TeamTask[] = [];
+        
+        for (const taskId of allTaskIds) {
+          try {
+            console.log(`Buscando team_task para tarefa ${taskId}...`);
+            const teamTaskResponse = await api.get<TeamTask[]>(
+              `http://localhost:8000/api/v1/team_task/?task=${taskId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${access}`,
+                },
+              }
+            );
+
+            if (teamTaskResponse.data && teamTaskResponse.data.length > 0) {
+              console.log(`✅ TeamTasks encontrados para tarefa ${taskId}:`, teamTaskResponse.data);
+              allTeamTasks.push(...teamTaskResponse.data);
+            } else {
+              console.log(`⚠️ Nenhum team_task encontrado para tarefa ${taskId} - tarefa sem equipe associada`);
+            }
+          } catch (teamTaskError) {
+            console.error(`❌ Erro ao buscar team_task para tarefa ${taskId}:`, teamTaskError);
+          }
+        }
+
+        console.log('=== TODOS OS TEAM_TASKS COLETADOS ===');
+        console.log('Total de team_tasks:', allTeamTasks.length);
+        console.log('Team_tasks:', allTeamTasks);
+
+        // Se não há team_tasks, não há dados para mostrar
+        if (allTeamTasks.length === 0) {
+          console.log('❌ Nenhum team_task encontrado - não há tarefas com equipes associadas');
+          setData([]);
+          return;
+        }
+
+        // Agrupar team_tasks por equipe
+        const teamTasksByTeam: Record<number, TeamTask[]> = {};
+        allTeamTasks.forEach(teamTask => {
+          if (!teamTasksByTeam[teamTask.team]) {
+            teamTasksByTeam[teamTask.team] = [];
+          }
+          teamTasksByTeam[teamTask.team].push(teamTask);
+        });
+
+        console.log('=== TEAM_TASKS AGRUPADOS POR EQUIPE ===');
+        console.log('Equipes com team_tasks:', Object.keys(teamTasksByTeam));
+        Object.entries(teamTasksByTeam).forEach(([teamId, tasks]) => {
+          console.log(`Equipe ${teamId}: ${tasks.length} tarefas`);
+        });
+
+        // Buscar nomes das equipes
+        const teamNames: Record<number, string> = {};
+        const uniqueTeamIds = Object.keys(teamTasksByTeam).map(Number);
+        
+        for (const teamId of uniqueTeamIds) {
+          try {
+            console.log(`Buscando nome da equipe ${teamId}...`);
+            const teamResponse = await api.get<TeamInfo>(
+              `http://localhost:8000/api/v1/teams/${teamId}/`,
+              {
+                headers: {
+                  Authorization: `Bearer ${access}`,
+                },
+              }
+            );
+            teamNames[teamId] = teamResponse.data.name;
+            console.log(`✅ Equipe ${teamId}: ${teamResponse.data.name}`);
+          } catch (teamError) {
+            console.error(`❌ Erro ao buscar equipe ${teamId}:`, teamError);
+            teamNames[teamId] = `Equipe #${teamId}`;
+          }
+        }
+
+        // Criar dados formatados para o GanttChart
         const formatted: GanttTask[] = [];
         
-        for (const operation of openOperations) {
-          console.log(`\n=== PROCESSANDO OPERAÇÃO: ${operation.name} (ID: ${operation.id}) ===`);
-          console.log(`IDs das tarefas da operação:`, operation.tasks);
+        console.log('\n=== INICIANDO CRIAÇÃO DOS DADOS FORMATADOS ===');
+        console.log('Total de equipes para processar:', Object.keys(teamTasksByTeam).length);
+        console.log('Operações em aberto disponíveis:', openOperations.map(op => ({ id: op.id, name: op.name, tasks: op.tasks })));
+        
+        for (const [teamId, teamTasks] of Object.entries(teamTasksByTeam)) {
+          const teamName = teamNames[Number(teamId)] || `Equipe #${teamId}`;
           
-          if (!operation.tasks || operation.tasks.length === 0) {
-            console.log(`⚠️ Operação ${operation.id} não tem tarefas associadas`);
-            continue;
-          }
+          console.log(`\n=== PROCESSANDO EQUIPE: ${teamName} (ID: ${teamId}) ===`);
+          console.log(`Total de tarefas da equipe:`, teamTasks.length);
+          console.log(`Tarefas da equipe:`, teamTasks);
           
-          for (const taskId of operation.tasks) {
+          // Criar uma barra para cada tarefa da equipe
+          for (const teamTask of teamTasks) {
             try {
-              console.log(`\n--- Processando tarefa ID: ${taskId} ---`);
+              console.log(`\n--- Processando tarefa ${teamTask.task} da equipe ${teamName} ---`);
+              console.log(`TeamTask completo:`, teamTask);
+              console.log(`Begin: ${teamTask.begin}, End: ${teamTask.end}`);
               
-              // Buscar detalhes da tarefa individual
-              const taskResponse = await api.get<TaskDetail>(
-                `http://localhost:8000/api/v1/tasks/${taskId}/`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${access}`,
-                  },
-                }
-              );
-
-              const taskDetail = taskResponse.data;
-              console.log(`Detalhes da tarefa ${taskId}:`, taskDetail);
-              
-              // Buscar associações team_task para esta tarefa
-              let teamName = "Sem equipe";
-              let begin = taskDetail.created_at;
-              let end = taskDetail.finished_at || operation.end;
-              
+              // Buscar detalhes da tarefa para obter informações adicionais
+              let taskDetail = null;
               try {
-                console.log(`Buscando team_task para tarefa ${taskId}...`);
-                const teamTaskResponse = await api.get<TeamTask[]>(
-                  `http://localhost:8000/api/v1/team_task/?task=${taskId}`,
+                const taskResponse = await api.get<TaskDetail>(
+                  `http://localhost:8000/api/v1/tasks/${teamTask.task}/`,
                   {
                     headers: {
                       Authorization: `Bearer ${access}`,
                     },
                   }
                 );
-
-                console.log(`TeamTasks encontrados para tarefa ${taskId}:`, teamTaskResponse.data);
-
-                if (teamTaskResponse.data && teamTaskResponse.data.length > 0) {
-                  // Usar o primeiro team_task encontrado (assumindo uma equipe por tarefa)
-                  const teamTask = teamTaskResponse.data[0];
-                  
-                  // Buscar informações da equipe
-                  try {
-                    console.log(`Buscando informações da equipe ${teamTask.team}...`);
-                    const teamResponse = await api.get<TeamInfo>(
-                      `http://localhost:8000/api/v1/teams/${teamTask.team}/`,
-                      {
-                        headers: {
-                          Authorization: `Bearer ${access}`,
-                        },
-                      }
-                    );
-                    teamName = teamResponse.data.name;
-                    console.log(`✅ Equipe encontrada para tarefa ${taskId}: ${teamName}`);
-                    
-                    // Se o team_task tem begin e end, usar esses tempos
-                    if (teamTask.begin && teamTask.end) {
-                      begin = teamTask.begin;
-                      end = teamTask.end;
-                      console.log(`✅ Usando tempos do team_task: ${begin} até ${end}`);
-                    }
-                  } catch (teamError) {
-                    console.error(`❌ Erro ao buscar equipe ${teamTask.team}:`, teamError);
-                    teamName = `Equipe #${teamTask.team}`;
-                  }
-                } else {
-                  console.log(`⚠️ Nenhum team_task encontrado para tarefa ${taskId}`);
-                }
-              } catch (teamTaskError) {
-                console.error(`❌ Erro ao buscar team_task para tarefa ${taskId}:`, teamTaskError);
+                taskDetail = taskResponse.data;
+                console.log(`✅ Detalhes da tarefa ${teamTask.task}:`, taskDetail);
+              } catch (taskError) {
+                console.error(`❌ Erro ao buscar detalhes da tarefa ${teamTask.task}:`, taskError);
               }
-
+              
+              // Encontrar a operação que contém esta tarefa
+              const operation = openOperations.find(op => op.tasks.includes(teamTask.task));
+              const operationName = operation ? operation.name : `Operação #${teamTask.task}`;
+              
+              console.log(`✅ Operação encontrada:`, operationName);
+              console.log(`🔍 Procurando operação que contenha tarefa ${teamTask.task}`);
+              console.log(`📋 IDs das tarefas nas operações:`, openOperations.map(op => ({ id: op.id, tasks: op.tasks })));
+              
+              // Usar os tempos do team_task (que são os corretos)
+              const begin = teamTask.begin;
+              const end = teamTask.end;
+              
+              console.log(`✅ Usando tempos do team_task: ${begin} até ${end}`);
+              
+              // Validar se os tempos são diferentes
+              if (begin === end) {
+                console.log(`⚠️ ATENÇÃO: Begin e End são iguais para tarefa ${teamTask.task}`);
+              }
+              
               const formattedTask: GanttTask = {
-                operation: operation.name || `Operação #${operation.id}`,
-                task: `Tarefa #${taskId}`,
-                equipments: operation.equipments.length > 0
+                operation: operationName,
+                task: `Tarefa #${teamTask.task}`,
+                equipments: operation && operation.equipments.length > 0
                   ? operation.equipments.map(e => e.name)
                   : ["Sem equipamento"],
                 team: teamName,
@@ -183,33 +237,170 @@ function useOperations() {
                 end: end,
               };
 
-              console.log(`✅ Tarefa formatada:`, formattedTask);
+              console.log(`✅ Tarefa formatada criada:`, formattedTask);
               formatted.push(formattedTask);
+              console.log(`✅ Tarefa adicionada ao array. Total atual: ${formatted.length}`);
               
-            } catch (taskError) {
-              console.error(`❌ Erro ao buscar detalhes da tarefa ${taskId}:`, taskError);
-              
-              // Fallback: usar tempos da operação se não conseguir buscar detalhes da tarefa
-              const fallbackTask: GanttTask = {
-                operation: operation.name || `Operação #${operation.id}`,
-                task: `Tarefa #${taskId}`,
-                equipments: operation.equipments.length > 0
-                  ? operation.equipments.map(e => e.name)
-                  : ["Sem equipamento"],
-                team: "Sem equipe",
-                begin: operation.begin,
-                end: operation.end,
-              };
-              
-              console.log(`⚠️ Tarefa fallback:`, fallbackTask);
-              formatted.push(fallbackTask);
+            } catch (error) {
+              console.error(`❌ Erro ao processar team_task ${teamTask.id}:`, error);
             }
           }
         }
 
         console.log('\n=== DADOS FINALIZADOS ===');
         console.log('Total de tarefas formatadas:', formatted.length);
-        console.log('Dados finais:', formatted);
+        console.log('Estrutura dos dados:');
+        formatted.forEach((task, index) => {
+          console.log(`Tarefa ${index + 1}:`, {
+            team: task.team,
+            task: task.task,
+            operation: task.operation,
+            begin: task.begin,
+            end: task.end,
+            equipments: task.equipments
+          });
+        });
+        console.log('Dados finais completos:', formatted);
+
+        // VALIDAÇÃO FINAL DOS DADOS ANTES DE ENVIAR PARA O GANTTCHART
+        console.log('\n=== VALIDAÇÃO FINAL DOS DADOS ===');
+        console.log('🔍 Verificando estrutura dos dados...');
+        
+        let dadosValidos = 0;
+        let dadosInvalidos = 0;
+        let problemasEncontrados: string[] = [];
+        
+        formatted.forEach((task, index) => {
+          console.log(`\n--- Validando Tarefa ${index + 1} ---`);
+          console.log(`Equipe: "${task.team}"`);
+          console.log(`Tarefa: "${task.task}"`);
+          console.log(`Operação: "${task.operation}"`);
+          console.log(`Begin: "${task.begin}"`);
+          console.log(`End: "${task.end}"`);
+          console.log(`Equipamentos: [${task.equipments.join(', ')}]`);
+          
+          // Validações
+          let tarefaValida = true;
+          
+          if (!task.team || task.team.trim() === '' || task.team === 'Sem equipe') {
+            console.log(`❌ PROBLEMA: Nome da equipe inválido: "${task.team}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Nome da equipe inválido`);
+          }
+          
+          if (!task.task || task.task.trim() === '') {
+            console.log(`❌ PROBLEMA: Nome da tarefa inválido: "${task.task}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Nome da tarefa inválido`);
+          }
+          
+          if (!task.operation || task.operation.trim() === '') {
+            console.log(`❌ PROBLEMA: Nome da operação inválido: "${task.operation}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Nome da operação inválido`);
+          }
+          
+          if (!task.begin || task.begin.trim() === '') {
+            console.log(`❌ PROBLEMA: Tempo de início inválido: "${task.begin}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Tempo de início inválido`);
+          }
+          
+          if (!task.end || task.end.trim() === '') {
+            console.log(`❌ PROBLEMA: Tempo de fim inválido: "${task.end}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Tempo de fim inválido`);
+          }
+          
+          if (task.begin === task.end) {
+            console.log(`❌ PROBLEMA: Begin e End são iguais: "${task.begin}" = "${task.end}"`);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Begin e End iguais`);
+          }
+          
+          // Verificar se os tempos são válidos
+          try {
+            const beginDate = new Date(task.begin);
+            const endDate = new Date(task.end);
+            
+            if (isNaN(beginDate.getTime())) {
+              console.log(`❌ PROBLEMA: Begin não é uma data válida: "${task.begin}"`);
+              tarefaValida = false;
+              problemasEncontrados.push(`Tarefa ${index + 1}: Begin não é data válida`);
+            }
+            
+            if (isNaN(endDate.getTime())) {
+              console.log(`❌ PROBLEMA: End não é uma data válida: "${task.end}"`);
+              tarefaValida = false;
+              problemasEncontrados.push(`Tarefa ${index + 1}: End não é data válida`);
+            }
+            
+            if (beginDate >= endDate) {
+              console.log(`❌ PROBLEMA: Begin >= End: ${beginDate.toISOString()} >= ${endDate.toISOString()}`);
+              tarefaValida = false;
+              problemasEncontrados.push(`Tarefa ${index + 1}: Begin >= End`);
+            }
+            
+          } catch (error) {
+            console.log(`❌ PROBLEMA: Erro ao processar datas:`, error);
+            tarefaValida = false;
+            problemasEncontrados.push(`Tarefa ${index + 1}: Erro ao processar datas`);
+          }
+          
+          if (tarefaValida) {
+            console.log(`✅ Tarefa ${index + 1} VÁLIDA`);
+            dadosValidos++;
+          } else {
+            console.log(`❌ Tarefa ${index + 1} INVÁLIDA`);
+            dadosInvalidos++;
+          }
+        });
+        
+        console.log('\n=== RESUMO DA VALIDAÇÃO ===');
+        console.log(`✅ Dados válidos: ${dadosValidos}`);
+        console.log(`❌ Dados inválidos: ${dadosInvalidos}`);
+        console.log(`📊 Total: ${formatted.length}`);
+        
+        if (problemasEncontrados.length > 0) {
+          console.log('\n🚨 PROBLEMAS ENCONTRADOS:');
+          problemasEncontrados.forEach(problema => console.log(`- ${problema}`));
+        } else {
+          console.log('\n🎉 NENHUM PROBLEMA ENCONTRADO!');
+        }
+        
+        // Verificar se há equipes duplicadas
+        const equipesUnicas = Array.from(new Set(formatted.map(t => t.team)));
+        console.log('\n=== VERIFICAÇÃO DE EQUIPES ===');
+        console.log(`Equipes únicas encontradas: ${equipesUnicas.length}`);
+        console.log('Lista de equipes:', equipesUnicas);
+        
+        // Verificar se há tarefas duplicadas por equipe
+        const tarefasPorEquipe: Record<string, string[]> = {};
+        formatted.forEach(task => {
+          if (!tarefasPorEquipe[task.team]) {
+            tarefasPorEquipe[task.team] = [];
+          }
+          tarefasPorEquipe[task.team].push(task.task);
+        });
+        
+        console.log('\n=== TAREFAS POR EQUIPE ===');
+        Object.entries(tarefasPorEquipe).forEach(([equipe, tarefas]) => {
+          console.log(`${equipe}: ${tarefas.length} tarefas - [${tarefas.join(', ')}]`);
+        });
+
+        console.log('\n=== DADOS ENVIADOS PARA O GANTTCHART ===');
+        console.log('📤 setData() será chamado com:', formatted);
+        console.log('📊 Resumo dos dados:');
+        formatted.forEach((task, index) => {
+          console.log(`Tarefa ${index + 1}:`, {
+            team: task.team,
+            task: task.task,
+            operation: task.operation,
+            begin: task.begin,
+            end: task.end,
+            equipments: task.equipments
+          });
+        });
 
         setData(formatted);
       } catch (error) {
