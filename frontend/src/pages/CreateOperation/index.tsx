@@ -79,6 +79,7 @@ function CreateOperation() {
               selectedTeams={selectedTeams}
               onSelectTeam={toggleTeamSelection}
               reloadSignal={reloadSignal}
+              showAll={false} // Sempre mostrar apenas equipes disponíveis
             />
           </div>
         </div>

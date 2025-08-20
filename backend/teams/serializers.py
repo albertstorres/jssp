@@ -6,4 +6,4 @@ class TeamSerializer(serializers.ModelSerializer):
     """Serializer para equipes - retorna apenas campos obrigatórios"""
     class Meta:
         model = Team
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'is_ocupied']
