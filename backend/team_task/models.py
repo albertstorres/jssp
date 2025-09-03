@@ -73,5 +73,11 @@ class TeamTask(models.Model):
     def delete(self, *args, **kwargs):
         """Log antes de deletar"""
         logger.warning(f"🗑️ Deletando TeamTask ID {self.pk}: Equipe {self.team.name if self.team else 'None'} - Tarefa {self.task.id if self.task else 'None'}")
+        
+        # 🔧 CORREÇÃO: NÃO liberar equipe automaticamente ao deletar TeamTask
+        # A equipe só deve ser liberada quando TODAS as suas tarefas estiverem finalizadas
+        logger.info(f"   ℹ️ Equipe {self.team.name} NÃO liberada automaticamente")
+        logger.info(f"   ℹ️ Verificar se todas as tarefas da equipe estão finalizadas antes de liberar")
+        
         super().delete(*args, **kwargs)
         logger.info(f"✅ TeamTask ID {self.pk} deletado com sucesso")

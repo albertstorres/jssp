@@ -210,3 +210,48 @@ class OperationViewSet(viewsets.ModelViewSet):
                     })
         
         return Response(gantt_data)
+
+    @action(detail=True, methods=['post'], url_path='finalize')
+    def finalize_operation(self, request, pk=None):
+        """
+        Endpoint para finalizar uma operação e liberar todas as equipes associadas
+        """
+        logger.info(f"🏁 FINALIZANDO OPERAÇÃO ID: {pk}")
+        
+        try:
+            operation = self.get_object()
+            logger.info(f"   📋 Operação: {operation.name}")
+            
+            # Usar o serializer para finalizar a operação
+            serializer = self.get_serializer(operation)
+            if hasattr(serializer, 'finalize_operation'):
+                success = serializer.finalize_operation(operation)
+                if success:
+                    logger.info(f"   ✅ Operação finalizada com sucesso")
+                    return Response({
+                        'message': 'Operação finalizada com sucesso',
+                        'operation_id': operation.id,
+                        'operation_name': operation.name,
+                        'status': 'finalized'
+                    }, status=status.HTTP_200_OK)
+                else:
+                    logger.error(f"   ❌ Falha ao finalizar operação")
+                    return Response({
+                        'error': 'Falha ao finalizar operação'
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                logger.error(f"   ❌ Serializer não possui método finalize_operation")
+                return Response({
+                    'error': 'Método de finalização não disponível'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except Operation.DoesNotExist:
+            logger.error(f"   ❌ Operação não encontrada: ID {pk}")
+            return Response({
+                'error': 'Operação não encontrada'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"   ❌ Erro inesperado: {str(e)}")
+            return Response({
+                'error': f'Erro inesperado: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

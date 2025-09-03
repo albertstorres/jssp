@@ -1,5 +1,7 @@
-from optimizations.classes.job import Jssp_job
-from datetime import datetime, timedelta
+import numpy as np
+from .job import Jssp_job
+from .operation import Operation
+
 
 
 class jssp:
@@ -10,31 +12,53 @@ class jssp:
         self.process_data(data)
 
     def process_data(self, data: dict):
-       
-        for job_name, details in data.get("jobs", {}).items():
-            job = Jssp_job(
-                name=job_name,
-                usable_machines=details[0][0],
-                equipments_needed=details[0][1],
-                duration=details[0][2],
-                task_ids=details[0][3],
-                equipment_ids=details[0][4]
-            )
+        jobs_data = data.get("jobs", {})
+        for job_name, operations_details in jobs_data.items():
+            operations = []
+            for op_data in operations_details:
+                machines = op_data[0]
+                equipments = op_data[1]
+                duration = op_data[2]
+                
+                # ✅ CORREÇÃO: Extrair task_id dos equipments
+                task_id = None
+                filtered_equipments = []
+                
+                for eq in equipments:
+                    if eq.startswith("task_"):
+                        task_id = int(eq.split("_")[1])
+                    else:
+                        filtered_equipments.append(eq)
+                
+                # ✅ CORREÇÃO: Criar operação com task_id e duração individual
+                operation = Operation(machines, filtered_equipments, duration, task_id)
+                operations.append(operation)
+                
+            job = Jssp_job(name=job_name, operations=operations)
             self.jobs.append(job)
+        self.machine_downtimes = data.get("machine_downtimes", {})
+        self.timespan = data.get("timespan", None)
 
     def get_flattened_operations(self):
         operations = []
         for job in self.jobs:
-            operations.append({
-                "job": job.name,
-                "machines": job.usable_machines,
-                "duration": job.duration
-            })
+            for operation in job.operations:
+                op_details = operation.getOperationDetails()
+                op_details["job"] = job.name  # Adicionar o nome do job
+                # ✅ CORREÇÃO: Garantir que task_id seja incluído
+                if operation.task_id:
+                    op_details["task_id"] = operation.task_id
+                operations.append(op_details)
         return operations
     
     
     def __str__(self) -> str:
-        return "\n".join([f"Job: {job.name}, Usable Machines: {job.usable_machines}, Equipments Needed: {job.equipments_needed}, Duration: {job.duration}" for job in self.jobs])
+        result = []
+        for job in self.jobs:
+            result.append(f"Job: {job.name}")
+            for idx, operation in enumerate(job.operations):
+                result.append(f"  Operation {idx+1}: Machines: {operation.machines}, Equipments: {operation.equipments}, Duration: {operation.duration}")
+        return "\n".join(result)
 
 # data = import_tests_cases("test")
 # jsspTest = jssp(data)
