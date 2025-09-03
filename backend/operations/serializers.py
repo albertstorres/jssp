@@ -199,6 +199,15 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                 logger.error(f"    VALIDAÇÃO FALHOU: Tarefa {task_id} não cadastrada")
                 raise serializers.ValidationError({'task_ids': f'Tarefa {task_id} não cadastrada.'})
         
+        # Validar se TODAS as tarefas possuem categoria definida
+        from tasks.models import Task as TaskModel
+        tasks_without_category = list(
+            TaskModel.objects.filter(id__in=task_ids, category__isnull=True).values_list('id', flat=True)
+        )
+        if tasks_without_category:
+            logger.error(f"    VALIDAÇÃO FALHOU: Tarefas sem categoria: {tasks_without_category}")
+            raise serializers.ValidationError({'task_ids': f'Tarefas sem categoria: {tasks_without_category}'})
+
         # Validar se as equipes existem
         from teams.models import Team
         for team_id in team_ids:
@@ -244,7 +253,19 @@ class OperationCreateSerializer(serializers.ModelSerializer):
             try:
                 task = Task.objects.get(id=task_id)
                 tasks.append(task)
-                logger.info(f"    Tarefa {task_id} encontrada: {task.category.description if task.category else 'Sem categoria'}")
+                
+                # DEBUG: Log detalhado da tarefa e sua categoria
+                if task.category:
+                    logger.info(f"    Tarefa {task_id} encontrada: '{task.category.description}'")
+                    logger.info(f"       Categoria ID: {task.category.id}")
+                    logger.info(f"       Estimated Time: {task.category.estimated_time} segundos")
+                    if task.category.estimated_time:
+                        logger.info(f"       Duração: {task.category.estimated_time // 60} minutos")
+                    else:
+                        logger.warning(f"       ⚠️ Categoria sem estimated_time definido!")
+                else:
+                    logger.warning(f"    Tarefa {task_id} encontrada: SEM CATEGORIA")
+                    
             except Task.DoesNotExist:
                 logger.error(f"    Tarefa {task_id} não encontrada!")
                 raise serializers.ValidationError({'task_ids': f'Tarefa {task_id} não encontrada.'})
@@ -281,12 +302,16 @@ class OperationCreateSerializer(serializers.ModelSerializer):
         job_operations = []
         for task in tasks:
             # Calcular duração baseada na categoria da tarefa
-            if task.category and task.category.estimated_time:
+            task_duration = None
+            
+            if task.category:
+                # SEMPRE usar o valor real da categoria (todas têm estimated_time preenchido)
                 task_duration = task.category.estimated_time
-                logger.info(f"    Tarefa {task.id}: Duração estimada = {task_duration} segundos")
+                logger.info(f"    Tarefa {task.id}: Categoria '{task.category.description}' - Duração = {task_duration} segundos ({task_duration // 60} minutos)")
             else:
-                task_duration = 3600  # 1 hora padrão se não houver estimativa
-                logger.warning(f"    Tarefa {task.id}: Sem duração estimada, usando padrão = {task_duration} segundos")
+                # Este caso deve ter sido bloqueado na validação; manter como guarda
+                logger.error(f"    ERRO: Tarefa {task.id} sem categoria - validado previamente, ignorando a tarefa")
+                continue
             
             #  CORREÇÃO: Estrutura correta para a classe jssp
             # A classe jssp espera: [machines, equipments, duration]
@@ -298,6 +323,13 @@ class OperationCreateSerializer(serializers.ModelSerializer):
             ))
             
             logger.info(f"    Operação criada para tarefa {task.id}: Duração = {task_duration}s")
+        
+        # DEBUG: Log final de todas as durações
+        logger.info(f" RESUMO DAS DURAÇÕES ENVIADAS PARA OTIMIZAÇÃO:")
+        for i, (task, job_op) in enumerate(zip(tasks, job_operations)):
+            duration = job_op[2]  # Duração está na posição 2
+            category_name = task.category.description if task.category else "SEM CATEGORIA"
+            logger.info(f"    Tarefa {task.id} ({category_name}): {duration} segundos ({duration // 60} minutos)")
         
         jobs = {
             "jobs": {
@@ -469,10 +501,13 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                         assigned_team = available_teams[task_index % len(available_teams)]
                         
                         # Calcular horários sequenciais baseados na duração da tarefa
-                        if task.category and task.category.estimated_time:
+                        if task.category:
+                            # SEMPRE usar o valor real da categoria
                             task_duration = task.category.estimated_time
                         else:
-                            task_duration = 3600  # 1 hora padrão
+                            # Apenas se não tiver categoria (caso raro)
+                            logger.error(f"    ERRO: Tarefa {task.id} sem categoria no fallback!")
+                            continue
                         
                         # Usar horários da operação como base
                         task_begin = operation.begin

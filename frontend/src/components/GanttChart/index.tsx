@@ -8,6 +8,7 @@ export interface GanttTask {
   team: string;
   begin: string;
   end: string;
+  category: string; // ✅ Adicionando campo para categoria
 }
 
 interface GanttChartProps {
@@ -169,11 +170,12 @@ function GanttChart({ data }: GanttChartProps) {
               width: 1.5
             }
           },
-          name: `${team} - ${task.task} (${task.operation})`,
+          name: `${team} - ${task.task} (${task.category})`,
           hoverinfo: 'text',
           hovertemplate: `
 <b>Equipe</b>: ${team}<br><br>
 <b>Tarefa</b>: ${task.task}<br><br>
+<b>Categoria</b>: ${task.category}<br><br>
 <b>Operação</b>: ${task.operation}<br><br>
 <b>Equipamentos</b><br> * ${task.equipments.join(', ') || 'Sem equipamentos'}<br><br>
 <b>Início</b>: ${formatDateTime(startTime)}<br>

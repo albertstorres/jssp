@@ -39,6 +39,13 @@ interface TeamTask {
   end: string;
 }
 
+interface Category {
+  id: number;
+  description: string;
+  estimated_time: number;
+  priority: string;
+}
+
 function useOperations() {
   const [data, setData] = useState<GanttTask[]>([]);
   const { handleGetToken } = useAuth();
@@ -169,6 +176,29 @@ function useOperations() {
           }
         }
 
+        // Buscar todas as categorias para criar um mapa
+        console.log('\n=== BUSCANDO CATEGORIAS ===');
+        const categoryNames: Record<number, string> = {};
+        try {
+          const categoriesResponse = await api.get<Category[]>(
+            'http://localhost:8000/api/v1/categories/',
+            {
+              headers: {
+                Authorization: `Bearer ${access}`,
+              },
+            }
+          );
+          
+          categoriesResponse.data.forEach(category => {
+            categoryNames[category.id] = category.description;
+            console.log(`✅ Categoria ${category.id}: ${category.description}`);
+          });
+          
+          console.log(`📊 Total de categorias carregadas: ${Object.keys(categoryNames).length}`);
+        } catch (categoryError) {
+          console.error('❌ Erro ao buscar categorias:', categoryError);
+        }
+
         // Criar dados formatados para o GanttChart
         const formatted: GanttTask[] = [];
         
@@ -226,6 +256,13 @@ function useOperations() {
                 console.log(`⚠️ ATENÇÃO: Begin e End são iguais para tarefa ${teamTask.task}`);
               }
               
+              // Obter nome da categoria
+              const categoryName = taskDetail && taskDetail.categorie 
+                ? categoryNames[taskDetail.categorie] || `Categoria #${taskDetail.categorie}`
+                : 'Sem categoria';
+              
+              console.log(`🏷️ Categoria da tarefa ${teamTask.task}: ${categoryName} (ID: ${taskDetail?.categorie || 'N/A'})`);
+
               const formattedTask: GanttTask = {
                 operation: operationName,
                 task: `Tarefa #${teamTask.task}`,
@@ -235,6 +272,7 @@ function useOperations() {
                 team: teamName,
                 begin: begin,
                 end: end,
+                category: categoryName, // ✅ Incluindo categoria
               };
 
               console.log(`✅ Tarefa formatada criada:`, formattedTask);
@@ -254,6 +292,7 @@ function useOperations() {
           console.log(`Tarefa ${index + 1}:`, {
             team: task.team,
             task: task.task,
+            category: task.category,
             operation: task.operation,
             begin: task.begin,
             end: task.end,
@@ -395,6 +434,7 @@ function useOperations() {
           console.log(`Tarefa ${index + 1}:`, {
             team: task.team,
             task: task.task,
+            category: task.category,
             operation: task.operation,
             begin: task.begin,
             end: task.end,

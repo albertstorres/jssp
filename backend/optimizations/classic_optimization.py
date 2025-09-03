@@ -49,20 +49,17 @@ def make_fitness_function(instance: jssp):
             # Seleciona máquina disponível mais cedo
             machine = min(machines, key=lambda m: machine_available.get(m, 0))
             
-            # Tempo de início considera disponibilidade da máquina e precedência do job
-            start_time = max(
-                machine_available.get(machine, 0),
-                job_available.get(job, 0)
-            )
-            
+            # Tempo de início baseado apenas na disponibilidade da máquina
+            # (removendo precedência por job para permitir paralelismo)
+            start_time = machine_available.get(machine, 0)
             end_time = start_time + duration
 
             logger.info(f"      Operação {idx}: Job {job}, Máquina {machine}")
             logger.info(f"         Horários: {start_time}s -> {end_time}s (duração: {duration}s)")
 
-            # Atualiza disponibilidades
+            # Atualiza apenas disponibilidade da máquina
             machine_available[machine] = end_time
-            job_available[job] = end_time
+            # job_available[job] = end_time  # ← REMOVIDO: permite paralelismo
             end_times.append(end_time)
 
         makespan = max(end_times)
@@ -101,19 +98,17 @@ def simulate_schedule_optimized(solution_vec, operations, start_time: datetime |
         # Seleciona máquina disponível mais cedo
         machine = min(machines, key=lambda m: machine_available.get(m, 0))
         
-        # Calcula horários sequenciais
-        start_time_seconds = max(
-            machine_available.get(machine, 0),
-            job_available.get(job, 0)
-        )
+        # Calcula horários baseado apenas na disponibilidade da máquina
+        # (removendo precedência por job para permitir paralelismo)
+        start_time_seconds = machine_available.get(machine, 0)
         end_time_seconds = start_time_seconds + duration
 
         logger.info(f"      Horários calculados: {start_time_seconds}s -> {end_time_seconds}s (duração: {duration}s)")
         logger.info(f"      Máquina selecionada: {machine}")
 
-        # Atualiza disponibilidades
+        # Atualiza apenas disponibilidade da máquina
         machine_available[machine] = end_time_seconds
-        job_available[job] = end_time_seconds
+        # job_available[job] = end_time_seconds  # REMOVIDO: permite paralelismo
 
         schedule.append({
             "job": job,
@@ -297,14 +292,15 @@ Cronograma otimizado:
 def example_single_operation():
     """
     Exemplo de como usar com uma única operação do backend.
+    Demonstra que tarefas com durações diferentes agora terminam em tempos diferentes.
     """
     # Dados que vêm do seu backend (uma única operação)
     single_operation_payload = {
         "jobs": {
             "Operação_1": [
-                (["Equipe A", "Equipe B"], ["Eq X", "task_267"], 900),
-                (["Equipe A"], ["Eq Y", "task_271"], 1200),
-                (["Equipe B", "Equipe C"], ["Eq Z", "task_269"], 600),
+                (["Equipe A", "Equipe B"], ["Eq X", "task_267"], 900),   # 15 min
+                (["Equipe A"], ["Eq Y", "task_271"], 1200),               # 20 min  
+                (["Equipe B", "Equipe C"], ["Eq Z", "task_269"], 600),    # 10 min
             ]
         },
         "timespan": 3600  # opcional
@@ -318,5 +314,11 @@ def example_single_operation():
     print(f"Nome: {result['name']}")
     print(f"Timespan: {result['timespan']}s")
     print(f"Team assignments: {result['team_assignments']}")
+    
+    # Agora as tarefas terminam em tempos diferentes baseado na duração individual
+    for ta in result['team_assignments']:
+        team = ta['team']
+        for task in ta['tasks']:
+            print(f"Equipe {team} → Tarefa {task['task_id']}: {task['begin_time']} - {task['end_time']} (duração: {task['duration']}s)")
     
     return result
