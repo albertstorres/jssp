@@ -16,6 +16,10 @@ class Team(models.Model):
         default = False,
         verbose_name = 'Está ocupado',
     )
+    on_mount = models.BooleanField(
+        default = False,
+        verbose_name = 'Em montagem',
+    )
 
 
     class Meta:
@@ -30,7 +34,7 @@ class Team(models.Model):
         Verifica se a equipe pode ser liberada (is_ocupied = False)
         Uma equipe só pode ser liberada quando TODAS as suas tarefas estão finalizadas
         """
-        if not self.is_ocupied:
+        if not self.is_ocupied and not self.on_mount:
             return True, "Equipe já está livre"
         
         # Buscar todas as tarefas ativas da equipe

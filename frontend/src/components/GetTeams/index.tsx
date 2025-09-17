@@ -8,6 +8,7 @@ export interface Team {
   name: string;
   shift: number;
   is_ocupied: boolean;
+  on_mount: boolean;
 }
 
 interface GetTeamProps {
@@ -57,20 +58,28 @@ function GetTeams({
         let filteredTeams = response.data;
         if (!showAll) {
           console.log('🔍 APLICANDO FILTRO: showAll = false');
-          console.log('🔍 Equipes antes do filtro:', response.data.map(t => ({ id: t.id, name: t.name, is_ocupied: t.is_ocupied })));
+          console.log('🔍 Equipes antes do filtro:', response.data.map(t => ({ 
+            id: t.id, 
+            name: t.name, 
+            is_ocupied: t.is_ocupied, 
+            on_mount: t.on_mount 
+          })));
           
-          // Teste específico do filtro
-          const testFilter = response.data.filter(team => !team.is_ocupied);
-          console.log('🧪 TESTE DIRETO: Equipes com !team.is_ocupied:', testFilter.map(t => ({ id: t.id, name: t.name, is_ocupied: t.is_ocupied })));
-          
+          // Filtro combinado: is_ocupied = false AND on_mount = false
           filteredTeams = response.data.filter(team => {
             const status = getTeamStatus(team);
-            console.log(`🔍 Equipe ${team.name}: is_ocupied=${team.is_ocupied}, Tipo=${typeof team.is_ocupied}, isAvailable=${status.isAvailable}`);
+            console.log(`Equipe ${team.name}: is_ocupied=${team.is_ocupied}, on_mount=${team.on_mount} (tratado como ${status.isOnMount}), isAvailable=${status.isAvailable}`);
             return status.isAvailable;
           });
           
-          console.log('✅ Equipes após filtro:', filteredTeams.map(t => ({ id: t.id, name: t.name, is_ocupied: t.is_ocupied })));
-          console.log('✅ Total de equipes não ocupadas:', filteredTeams.length);
+          console.log('✅ Equipes após filtro (is_ocupied=false AND on_mount=false):', 
+            filteredTeams.map(t => ({ 
+              id: t.id, 
+              name: t.name, 
+              is_ocupied: t.is_ocupied, 
+              on_mount: t.on_mount 
+            })));
+          console.log('✅ Total de equipes disponíveis:', filteredTeams.length);
         } else {
           console.log('🔍 SEM FILTRO: showAll = true');
         }
@@ -79,7 +88,7 @@ function GetTeams({
         console.log('🔍 Detalhes de cada equipe:');
         response.data.forEach((team, index) => {
           const status = getTeamStatus(team);
-          console.log(`  Equipe ${index + 1}: ID=${team.id}, Nome=${team.name}, is_ocupied=${team.is_ocupied}, Tipo=${typeof team.is_ocupied}, Status=${status.statusText}`);
+          console.log(`  Equipe ${index + 1}: ID=${team.id}, Nome=${team.name}, is_ocupied=${team.is_ocupied}, on_mount=${team.on_mount}, Status=${status.statusText}`);
         });
 
         // Ordenar por nome
@@ -105,11 +114,26 @@ function GetTeams({
 
   // Função auxiliar para mapear o status da equipe
   const getTeamStatus = (team: Team) => {
+    // Tratar undefined como false (temporário até backend ser corrigido)
+    const onMount = team.on_mount ?? false;
+    const isAvailable = !team.is_ocupied && !onMount;
+    let statusText = "Disponível";
+    let statusClass = 'available';
+    
+    if (team.is_ocupied) {
+      statusText = "Ocupada";
+      statusClass = 'occupied';
+    } else if (onMount) {
+      statusText = "Em montagem";
+      statusClass = 'mounting';
+    }
+    
     return {
       isOcupied: team.is_ocupied,
-      isAvailable: !team.is_ocupied,
-      statusText: team.is_ocupied ? "Ocupada" : "Disponível",
-      statusClass: team.is_ocupied ? 'occupied' : 'available'
+      isOnMount: onMount,
+      isAvailable: isAvailable,
+      statusText: statusText,
+      statusClass: statusClass
     };
   };
 
@@ -167,6 +191,20 @@ function GetTeams({
             <span className="teams-count">
               {teams.length} equipe{teams.length !== 1 ? 's' : ''} {showAll ? 'encontrada' : 'disponível'}{teams.length !== 1 ? 's' : ''}
             </span>
+            <div className="teams-legend">
+              <div className="legend-item">
+                <div className="legend-color legend-available"></div>
+                <span>Disponível</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color legend-mounting"></div>
+                <span>Em montagem</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color legend-selected"></div>
+                <span>Selecionada</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

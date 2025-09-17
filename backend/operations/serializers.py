@@ -569,7 +569,7 @@ class OperationCreateSerializer(serializers.ModelSerializer):
             logger.warning(f"    Tarefas não atribuídas: {missing_tasks}")
         else:
             logger.info(f"    SUCESSO: Todas as tarefas foram atribuídas corretamente!")
-        
+
         #  CORREÇÃO: Marcar equipes como ocupadas após atribuição
         logger.info(f" Atualizando status das equipes...")
         for team in teams:

@@ -18,10 +18,11 @@ class TaskListSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     categorie = serializers.SerializerMethodField()  # Campo obrigatório para o frontend
+    on_mount = serializers.BooleanField(required=False)
 
     class Meta:
         model = Task
-        fields = ['id', 'status', 'created_at', 'finished_at', 'categorie', 'category']
+        fields = ['id', 'status', 'created_at', 'finished_at', 'categorie', 'category', 'on_mount']
         read_only_fields = ['finished_at']
 
     def get_categorie(self, obj):

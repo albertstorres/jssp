@@ -25,7 +25,7 @@ class OperationViewSet(viewsets.ModelViewSet):
         
         queryset = Operation.objects.filter(finalized=False)
         finalized_param = self.request.query_params.get('finalized')
-        
+
         if finalized_param is not None:
             if finalized_param.lower() == 'true':
                 queryset = Operation.objects.filter(finalized=True)
@@ -35,7 +35,7 @@ class OperationViewSet(viewsets.ModelViewSet):
                 logger.info(f"   ✅ Filtro aplicado: finalized=False")
         else:
             logger.info(f"   ✅ Filtro padrão: finalized=False")
-        
+
         logger.info(f"   📊 Operações encontradas: {queryset.count()}")
         return queryset
 

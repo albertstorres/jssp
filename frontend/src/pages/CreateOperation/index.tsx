@@ -7,6 +7,7 @@ import GetTeams, { Team } from '../../components/GetTeams';
 import SetOperation from '../../components/SetOperation';
 import SelectClassicOptimization from '../../components/SelectClassicOptimization';
 import SelectQuantumOptimization from '../../components/SelectQuantumOptimization';
+import MountOperations from '../../components/MountOperations';
 import useAuth from '../../hooks/useAuth';
 
 function CreateOperation() {
@@ -34,12 +35,26 @@ function CreateOperation() {
     setSelectedTeams((prev) => toggleSelection(prev, team));
   };
 
+  const removeSpecificTasks = (taskIdsToRemove: number[]) => {
+    setSelectedTasks((prev) => prev.filter(task => !taskIdsToRemove.includes(task.id)));
+  };
+
+  const removeSpecificTeams = (teamIdsToRemove: number[]) => {
+    setSelectedTeams((prev) => prev.filter(team => !teamIdsToRemove.includes(team.id)));
+  };
+
   const handleSuccess = () => {
     setSelectedTasks([]);
     setSelectedEquipments([]);
     setSelectedTeams([]);
     setOptimizationType(null);
     setMessage({ type: 'success', text: 'Operação criada com sucesso!' });
+    setReloadSignal((prev) => prev + 1);
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  const handleMountSuccess = () => {
+    setMessage({ type: 'success', text: 'Operação montada com sucesso! As tarefas e equipes foram atualizadas.' });
     setReloadSignal((prev) => prev + 1);
     setTimeout(() => setMessage(null), 4000);
   };
@@ -96,6 +111,26 @@ function CreateOperation() {
         </div>
 
         <div className="action-section">
+          <MountOperations
+            selectedTaskIds={selectedTasks.map((t) => t.id)}
+            selectedEquipmentIds={selectedEquipments.map((e) => e.id)}
+            selectedTeamIds={selectedTeams.map((t) => t.id)}
+            optimizationType={optimizationType}
+            onRemoveSpecificTasks={removeSpecificTasks}
+            onRemoveSpecificTeams={removeSpecificTeams}
+            onMountSuccess={handleMountSuccess}
+            onClassicJobsChange={(payload) => {
+              console.log('classic_optimization payload atualizado:', payload);
+            }}
+            onQuantumJobsChange={(payload) => {
+              console.log('quantum_optimization payload atualizado:', payload);
+            }}
+            onSendPayload={({ type, payload }) => {
+              console.log(`Enviar payload (${type}):`, payload);
+              // Aqui você pode baixar/salvar/rotear conforme necessário
+              // ex.: salvar arquivo, enviar para backend específico, etc.
+            }}
+          />
           <SetOperation
             selectedTaskIds={selectedTasks.map((t) => t.id)}
             selectedEquipmentIds={selectedEquipments.map((e) => e.id)}

@@ -24,6 +24,11 @@ class TeamViewSet(viewsets.ModelViewSet):
         
         # Aplicar filtros do dj_rql (já configurado no settings)
         filtered_queryset = super().get_queryset()
+
+        # Ocultar equipes em montagem quando show_all for false ou ausente
+        show_all_param = self.request.query_params.get('show_all')
+        if show_all_param is None or str(show_all_param).lower() == 'false':
+            filtered_queryset = filtered_queryset.filter(on_mount=False)
         
         logger.info(f"🔍 TeamViewSet - QuerySet após filtros: {filtered_queryset.count()} registros")
         

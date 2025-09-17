@@ -17,6 +17,10 @@ class Task(models.Model):
         default = 'pending',
         verbose_name = 'Status',
     )
+    on_mount = models.BooleanField(
+        default = False,
+        verbose_name = 'Em montagem',
+    )
     category = models.ForeignKey(
         Category,
         on_delete = models.PROTECT,
