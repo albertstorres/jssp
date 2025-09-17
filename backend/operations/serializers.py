@@ -389,10 +389,8 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                                     end=timezone.datetime.fromisoformat(op_data['end'])
                                 )
                                 logger.info(f"    OperationTeam criado via otimização: Operação {operation.name} -> Equipe {team.name} (ID: {operation_team.id})")
-                            # Marcar equipe como ocupada
-                            team.is_ocupied = True
-                            team.save()
-                            logger.info(f"    Equipe {team.name} marcada como ocupada via otimização")
+                            # Não marcar ocupação aqui; será feito após criar TeamTask para equipes realmente usadas
+                            logger.info(f"    Ocupação será definida após atribuição real de tarefas (TeamTask)")
                         else:
                             logger.warning(f"    Equipe {team_name} da otimização não encontrada na lista de equipes fornecidas")
                 else:
@@ -434,6 +432,7 @@ class OperationCreateSerializer(serializers.ModelSerializer):
         assigned_tasks = set()
         team_task_count = 0
         
+        used_team_ids = set()
         for task in tasks:
             logger.info(f"    Processando tarefa {task.id}")
             
@@ -556,6 +555,7 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                     #  VALIDAÇÃO: Marcar tarefa como atribuída
                     assigned_tasks.add(task.id)
                     logger.info(f"       Tarefa {task.id} marcada como atribuída à equipe {assigned_team.name}")
+                    used_team_ids.add(assigned_team.id)
                 else:
                     logger.error(f"       Não foi possível atribuir equipe para tarefa {task.id}")
             else:
@@ -575,17 +575,22 @@ class OperationCreateSerializer(serializers.ModelSerializer):
         else:
             logger.info(f"    SUCESSO: Todas as tarefas foram atribuídas corretamente!")
 
-        #  CORREÇÃO: Marcar equipes como ocupadas após atribuição
-        logger.info(f" Atualizando status das equipes...")
+        #  CORREÇÃO: Marcar equipes como ocupadas APENAS se foram realmente usadas (possuem TeamTask)
+        logger.info(f" Atualizando status das equipes (apenas usadas)...")
         for team in teams:
-            if team.is_ocupied != True:  # Só atualizar se não estiver já ocupada
-                team.is_ocupied = True
-                team.save()
-                logger.info(f"    Equipe {team.name} marcada como ocupada")
+            if team.id in used_team_ids:
+                if team.is_ocupied != True:
+                    team.is_ocupied = True
+                    team.save()
+                    logger.info(f"    Equipe {team.name} marcada como ocupada (usada)")
+                else:
+                    logger.info(f"   ℹ Equipe {team.name} já estava ocupada (usada)")
             else:
-                logger.info(f"   ℹ Equipe {team.name} já estava ocupada")
+                logger.info(f"   ℹ Equipe {team.name} não foi usada e não será marcada como ocupada")
 
-        # SEMPRE alterar on_mount para False de todas as equipes envolvidas na operação
+        # Alterar on_mount para False:
+        # - das equipes usadas (para sair do estado de montagem)
+        # - das equipes não usadas (para liberá-las para outras montagens)
         if teams:
             from services.ChangeOnMountTeam import change_on_mount_team
             team_ids_all = [t.id for t in teams]
