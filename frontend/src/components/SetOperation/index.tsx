@@ -9,6 +9,7 @@ interface SetOperationProps {
   selectedTeamIds: number[];
   onSuccess?: () => void;
   optimizationType?: 'classic' | 'quantum' | null;
+  jobsJson?: { jobs: Record<string, Array<[number[], number[], number[]]>> };
 }
 
 function SetOperation({
@@ -17,6 +18,7 @@ function SetOperation({
   selectedTeamIds,
   onSuccess,
   optimizationType,
+  jobsJson,
 }: SetOperationProps) {
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -27,13 +29,53 @@ function SetOperation({
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!selectedTaskIds.length || !name.trim()) {
-      setMessage('Selecione pelo menos uma tarefa e um nome para a operação.');
+    if (!name.trim()) {
+      setMessage('Informe um nome base para a(s) operação(ões).');
       return;
     }
 
+    const url = 'http://localhost:8000/api/v1/operations/';
+
     try {
-      const url = 'http://localhost:8000/api/v1/operations/';
+      // Quando houver jobs montados, criar 1 operação por job (um-a-um)
+      if (jobsJson && jobsJson.jobs && Object.keys(jobsJson.jobs).length > 0) {
+        const jobKeys = Object.keys(jobsJson.jobs);
+
+        for (const jobKey of jobKeys) {
+          const tuples = jobsJson.jobs[jobKey];
+          if (!Array.isArray(tuples) || tuples.length === 0) continue;
+
+          // Cada job é uma tupla: [ [taskIds], [equipmentIds], [teamIds] ]
+          const [taskIds, equipmentIds, teamIds] = tuples[0];
+
+          const payload = {
+            name: `${name} - ${jobKey}`,
+            task_ids: taskIds || [],
+            equipment_ids: equipmentIds || [],
+            team_ids: teamIds || [],
+            optimization_type: optimizationType,
+          };
+
+          // Criar operação 1 por 1, de forma sequencial
+          const response = await api.post(url, payload, {
+            headers: {
+              Authorization: `Bearer ${access}`,
+            },
+          });
+          console.log(`Operação criada (${jobKey}):`, response.data);
+        }
+
+        setMessage(`Operações criadas com sucesso: ${jobKeys.length}.`);
+        if (onSuccess) onSuccess();
+        return;
+      }
+
+      // Fallback: comportamento anterior (única operação a partir das seleções atuais)
+      if (!selectedTaskIds.length) {
+        setMessage('Selecione pelo menos uma tarefa ou forneça jobs válidos.');
+        return;
+      }
+
       const payload = {
         name,
         task_ids: selectedTaskIds,

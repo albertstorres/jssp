@@ -456,6 +456,11 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                 task.status = 'in_progress'
                 task.save()
                 logger.info(f"    Status da tarefa {task.id} alterado de 'pending' para 'in_progress'")
+                
+                # Alterar on_mount para False após mudança de status
+                from services.ChangeOnMountTask import change_on_mount_task
+                updated_count, updated_ids = change_on_mount_task(task.id)
+                logger.info(f"    Task {task.id} - on_mount alterado para False: {updated_count} atualizado(s)")
 
             # Associar tarefa às equipes da operação via TeamTask
             if teams:  # Verificar se há equipes antes de criar TeamTask
@@ -579,6 +584,13 @@ class OperationCreateSerializer(serializers.ModelSerializer):
                 logger.info(f"    Equipe {team.name} marcada como ocupada")
             else:
                 logger.info(f"   ℹ Equipe {team.name} já estava ocupada")
+
+        # SEMPRE alterar on_mount para False de todas as equipes envolvidas na operação
+        if teams:
+            from services.ChangeOnMountTeam import change_on_mount_team
+            team_ids_all = [t.id for t in teams]
+            updated_count, updated_ids = change_on_mount_team(team_ids_all)
+            logger.info(f"    Teams {team_ids_all} - on_mount alterado para False: {updated_count} atualizado(s)")
         
         return operation
     

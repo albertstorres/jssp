@@ -17,6 +17,7 @@ function CreateOperation() {
   const [optimizationType, setOptimizationType] = useState<'classic' | 'quantum' | null>(null);
   const [reloadSignal, setReloadSignal] = useState(0);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [jobsJson, setJobsJson] = useState<{ jobs: Record<string, Array<[number[], number[], number[]]>> } | null>(null);
 
   const toggleSelection = <T extends { id: number }>(array: T[], item: T): T[] =>
     array.some((i) => i.id === item.id)
@@ -48,6 +49,7 @@ function CreateOperation() {
     setSelectedEquipments([]);
     setSelectedTeams([]);
     setOptimizationType(null);
+    setJobsJson(null);
     setMessage({ type: 'success', text: 'Operação criada com sucesso!' });
     setReloadSignal((prev) => prev + 1);
     setTimeout(() => setMessage(null), 4000);
@@ -121,14 +123,17 @@ function CreateOperation() {
             onMountSuccess={handleMountSuccess}
             onClassicJobsChange={(payload) => {
               console.log('classic_optimization payload atualizado:', payload);
+              setJobsJson(payload);
             }}
             onQuantumJobsChange={(payload) => {
               console.log('quantum_optimization payload atualizado:', payload);
+              setJobsJson(payload);
             }}
             onSendPayload={({ type, payload }) => {
               console.log(`Enviar payload (${type}):`, payload);
               // Aqui você pode baixar/salvar/rotear conforme necessário
               // ex.: salvar arquivo, enviar para backend específico, etc.
+              setJobsJson(payload);
             }}
           />
           <SetOperation
@@ -137,6 +142,7 @@ function CreateOperation() {
             selectedTeamIds={selectedTeams.map((t) => t.id)}
             optimizationType={optimizationType}
             onSuccess={handleSuccess}
+            jobsJson={jobsJson ?? undefined}
           />
         </div>
       </div>
