@@ -99,6 +99,22 @@
   font-size: 12px;
 }
 
+/* Resumo e contador (espelhado de GetTeams) */
+.tasks-summary {
+  text-align: center;
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  border: 1px solid #d0e7ff;
+}
+
+.tasks-count {
+  color: #0066cc;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .legend-item {
   display: flex;
   align-items: center;

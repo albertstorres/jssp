@@ -7,6 +7,7 @@ interface MountOperationsProps {
   selectedTaskIds: number[];
   selectedTeamIds: number[];
   selectedEquipmentIds?: number[];
+  selectedTeamsDetails?: { id: number; name: string }[];
   optimizationType?: 'classic' | 'quantum' | null;
   onClassicJobsChange?: (jobsJson: { jobs: Record<string, Array<[number[], number[], number[]]>> }) => void;
   onQuantumJobsChange?: (jobsJson: { jobs: Record<string, Array<[number[], number[], number[]]>> }) => void;
@@ -29,6 +30,7 @@ function MountOperations({
   selectedTaskIds,
   selectedTeamIds,
   selectedEquipmentIds = [],
+  selectedTeamsDetails = [],
   optimizationType = 'classic',
   onClassicJobsChange,
   onQuantumJobsChange,
@@ -39,6 +41,8 @@ function MountOperations({
 }: MountOperationsProps) {
   const [classicJobs, setClassicJobs] = useState<Record<string, Array<[number[], number[], number[]]>>>({});
   const [quantumJobs, setQuantumJobs] = useState<Record<string, Array<[number[], number[], number[]]>>>({});
+  const [classicJobTeamNames, setClassicJobTeamNames] = useState<Record<string, string[]>>({});
+  const [quantumJobTeamNames, setQuantumJobTeamNames] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
@@ -174,11 +178,17 @@ function MountOperations({
       if (optimizationType === 'quantum') {
         const newJobs = { ...quantumJobs, [newJobKey]: [jobTuple] };
         setQuantumJobs(newJobs);
+        // Persistir nomes das equipes para este job
+        const names = teamIds.map(id => selectedTeamsDetails.find(t => t.id === id)?.name || `#${id}`);
+        setQuantumJobTeamNames(prev => ({ ...prev, [newJobKey]: names }));
         onQuantumJobsChange?.({ jobs: newJobs });
         onSendPayload?.({ type: 'quantum', payload: { jobs: newJobs } });
       } else {
         const newJobs = { ...classicJobs, [newJobKey]: [jobTuple] };
         setClassicJobs(newJobs);
+        // Persistir nomes das equipes para este job
+        const names = teamIds.map(id => selectedTeamsDetails.find(t => t.id === id)?.name || `#${id}`);
+        setClassicJobTeamNames(prev => ({ ...prev, [newJobKey]: names }));
         onClassicJobsChange?.({ jobs: newJobs });
         onSendPayload?.({ type: 'classic', payload: { jobs: newJobs } });
       }
@@ -223,13 +233,60 @@ function MountOperations({
         {loading ? 'Montando...' : 'Montar Operação'}
       </button>
 
-      {/* Pré-visualização simples do JSON montado */}
-      {optimizationType !== 'quantum' && Object.keys(classicJobs).length > 0 && (
-        <pre className="mount-operations-preview">{JSON.stringify({ jobs: classicJobs }, null, 2)}</pre>
-      )}
-      {optimizationType === 'quantum' && Object.keys(quantumJobs).length > 0 && (
-        <pre className="mount-operations-preview">{JSON.stringify({ jobs: quantumJobs }, null, 2)}</pre>
-      )}
+      {/* Card de visualização amigável dos jobs montados */}
+      {(() => {
+        const data = optimizationType === 'quantum' ? quantumJobs : classicJobs;
+        const jobTeamNames = optimizationType === 'quantum' ? quantumJobTeamNames : classicJobTeamNames;
+        const hasJobs = Object.keys(data).length > 0;
+        if (!hasJobs) return null;
+        return (
+          <div className="mount-operations-card">
+            <div className="mount-operations-card-header">
+              <h3 className="mount-operations-card-title">Operações montadas</h3>
+              <span className="mount-operations-card-count">
+                {Object.keys(data).length} job{Object.keys(data).length !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <ul className="mount-operations-job-list">
+              {Object.entries(data).map(([jobKey, tuples]) => {
+                // Cada job contém um array de tuplas [tasks, equipments, teams]
+                return tuples.map(([taskIds, equipmentIds, teamIds], idx) => (
+                  <li key={`${jobKey}-${idx}`} className="mount-operations-job-item">
+                    <div className="job-item-header">
+                      <span className="job-key">{jobKey}</span>
+                      <span className="job-badges">
+                        <span className="badge badge-tasks">{taskIds.length} tarefa{taskIds.length !== 1 ? 's' : ''}</span>
+                        <span className="badge badge-equipments">{equipmentIds.length} equipamento{equipmentIds.length !== 1 ? 's' : ''}</span>
+                        <span className="badge badge-teams">{teamIds.length} equipe{teamIds.length !== 1 ? 's' : ''}</span>
+                      </span>
+                    </div>
+                    <div className="job-detail-grid">
+                      <div className="job-detail">
+                        <span className="detail-label">Tarefas:</span>
+                        <span className="detail-values">{taskIds.length > 0 ? `#${taskIds.join(', #')}` : '—'}</span>
+                      </div>
+                      <div className="job-detail">
+                        <span className="detail-label">Equipamentos:</span>
+                        <span className="detail-values">{equipmentIds.length > 0 ? `#${equipmentIds.join(', #')}` : '—'}</span>
+                      </div>
+                      <div className="job-detail">
+                        <span className="detail-label">Equipes:</span>
+                        <span className="detail-values">
+                          {teamIds.length > 0
+                            ? (jobTeamNames[jobKey] && jobTeamNames[jobKey].length === teamIds.length
+                                ? jobTeamNames[jobKey].join(', ')
+                                : `#${teamIds.join(', #')}`)
+                            : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                ));
+              })}
+            </ul>
+          </div>
+        );
+      })()}
     </div>
   );
 }

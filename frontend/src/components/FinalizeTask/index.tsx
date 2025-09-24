@@ -1,5 +1,5 @@
 import './styles.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 
@@ -45,6 +45,72 @@ function FinalizeTask({ taskId, onTaskFinalized }: FinalizeTaskProps) {
   const access = handleGetToken();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [teamName, setTeamName] = useState<string>('');
+  const [teamId, setTeamId] = useState<number | null>(null);
+  const [loadingTeam, setLoadingTeam] = useState<boolean>(false);
+
+  // Buscar equipe ANTES de finalizar (exibir no card)
+  useEffect(() => {
+    async function fetchTeamForTask() {
+      if (!access || !taskId) return;
+      setLoadingTeam(true);
+      try {
+        const teamTaskUrl = `http://localhost:8000/api/v1/team_task/?task=${taskId}`;
+        console.log('🔎 [FinalizeTask] Buscando team_task por tarefa...', { url: teamTaskUrl, taskId });
+        const teamTaskResp = await api.get<Array<{ id: number; team: number; team_name?: string; task: number }>>(
+          teamTaskUrl,
+          { headers: { Authorization: `Bearer ${access}` } }
+        );
+        console.log('✅ [FinalizeTask] team_task resposta:', teamTaskResp.data);
+
+        if (Array.isArray(teamTaskResp.data) && teamTaskResp.data.length > 0) {
+          const tt0: any = teamTaskResp.data[0];
+          const resolvedTeamId: number | undefined = (tt0 && (tt0.team ?? tt0.team_id));
+          const inlineTeamName: string | undefined = tt0 && (tt0.team_name ?? tt0.teamName);
+          console.log('ℹ️ [FinalizeTask] Primeiro team_task:', tt0);
+          console.log('🆔 [FinalizeTask] teamId resolvido:', resolvedTeamId);
+          console.log('🏷️ [FinalizeTask] team_name inline:', inlineTeamName);
+
+          if (inlineTeamName && inlineTeamName.trim() !== '') {
+            setTeamName(inlineTeamName);
+            setTeamId(typeof resolvedTeamId === 'number' ? resolvedTeamId : null);
+            console.log('✅ [FinalizeTask] Nome da equipe definido via team_task.team_name');
+          } else if (typeof resolvedTeamId === 'number') {
+            try {
+              const teamDetailUrl = `http://localhost:8000/api/v1/teams/${resolvedTeamId}/`;
+              console.log('🔎 [FinalizeTask] Buscando detalhes da equipe...', { url: teamDetailUrl });
+              const teamResponse = await api.get<{ id: number; name: string }>(teamDetailUrl, {
+                headers: { Authorization: `Bearer ${access}` },
+              });
+              setTeamName(teamResponse.data.name);
+              setTeamId(resolvedTeamId);
+              console.log('✅ [FinalizeTask] Nome da equipe definido via teams/<id>:', teamResponse.data);
+            } catch (teamError) {
+              console.error('❌ [FinalizeTask] Erro ao buscar equipe (via teams/<id>):', teamError);
+              setTeamName('');
+              setTeamId(null);
+            }
+          } else {
+            console.warn('⚠️ [FinalizeTask] teamId não encontrado no team_task');
+            setTeamName('');
+            setTeamId(null);
+          }
+        } else {
+          console.warn('⚠️ [FinalizeTask] Nenhum team_task retornado para esta tarefa');
+          setTeamName('');
+          setTeamId(null);
+        }
+      } catch (error) {
+        console.error('❌ [FinalizeTask] Erro ao buscar team_task inicial:', error);
+        setTeamName('');
+        setTeamId(null);
+      } finally {
+        setLoadingTeam(false);
+      }
+    }
+
+    fetchTeamForTask();
+  }, [access, taskId]);
 
   async function handleFinalize() {
     if (!access) {
@@ -222,12 +288,15 @@ function FinalizeTask({ taskId, onTaskFinalized }: FinalizeTaskProps) {
 
   return (
     <div className="finalize-task-container">
+      <div className="finalize-task-team-info">
+        <strong>Equipe:</strong> {teamName || (teamId ? `Equipe #${teamId}` : 'Sem equipe')}
+      </div>
       <button 
         onClick={handleFinalize} 
         className="finalize-task-button"
-        disabled={loading}
+        disabled={loading || loadingTeam}
       >
-        {loading ? 'Finalizando...' : 'Finalizar Tarefa'}
+        {loading ? 'Finalizando...' : (loadingTeam ? 'Carregando equipe...' : 'Finalizar Tarefa')}
       </button>
 
       {message && (

@@ -197,10 +197,6 @@ function GetTeams({
                 <span>Disponível</span>
               </div>
               <div className="legend-item">
-                <div className="legend-color legend-mounting"></div>
-                <span>Em montagem</span>
-              </div>
-              <div className="legend-item">
                 <div className="legend-color legend-selected"></div>
                 <span>Selecionada</span>
               </div>

@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import TeamTask
@@ -14,7 +14,9 @@ class TeamTaskViewSet(viewsets.ModelViewSet):
     queryset = TeamTask.objects.all()
     serializer_class = TeamTaskSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [TeamTaskFilter]
+    filter_backends = [TeamTaskFilter, filters.OrderingFilter]
+    ordering_fields = ['created_at', 'updated_at', 'begin', 'end']
+    ordering = ['-created_at']
     
     def list(self, request, *args, **kwargs):
         """Log antes de listar"""

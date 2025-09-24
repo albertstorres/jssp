@@ -1,5 +1,6 @@
 from django.db import models
 from categories.models import Category
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,9 @@ class Task(models.Model):
                 
                 # 🔧 CORREÇÃO: Verificar se equipes podem ser liberadas quando tarefa é finalizada
                 if new_status == 'finished':
+                    # Definir finished_at no momento da finalização
+                    if not self.finished_at:
+                        self.finished_at = timezone.now()
                     logger.info(f"   🏁 Tarefa {self.id} finalizada, verificando se equipes podem ser liberadas...")
                     
                     # Buscar todas as equipes associadas a esta tarefa

@@ -117,6 +117,7 @@ function CreateOperation() {
             selectedTaskIds={selectedTasks.map((t) => t.id)}
             selectedEquipmentIds={selectedEquipments.map((e) => e.id)}
             selectedTeamIds={selectedTeams.map((t) => t.id)}
+            selectedTeamsDetails={selectedTeams.map(t => ({ id: t.id, name: t.name }))}
             optimizationType={optimizationType}
             onRemoveSpecificTasks={removeSpecificTasks}
             onRemoveSpecificTeams={removeSpecificTeams}

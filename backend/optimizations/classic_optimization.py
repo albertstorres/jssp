@@ -48,18 +48,20 @@ def make_fitness_function(instance: jssp):
 
             # Seleciona máquina disponível mais cedo
             machine = min(machines, key=lambda m: machine_available.get(m, 0))
-            
-            # Tempo de início baseado apenas na disponibilidade da máquina
-            # (removendo precedência por job para permitir paralelismo)
-            start_time = machine_available.get(machine, 0)
+
+            # Tempo de início respeitando precedência do job (ordem original) e máquina
+            start_time = max(
+                machine_available.get(machine, 0),
+                job_available.get(job, 0)
+            )
             end_time = start_time + duration
 
             logger.info(f"      Operação {idx}: Job {job}, Máquina {machine}")
             logger.info(f"         Horários: {start_time}s -> {end_time}s (duração: {duration}s)")
 
-            # Atualiza apenas disponibilidade da máquina
+            # Atualiza disponibilidade da máquina e do job (garante precedência)
             machine_available[machine] = end_time
-            # job_available[job] = end_time  # ← REMOVIDO: permite paralelismo
+            job_available[job] = end_time
             end_times.append(end_time)
 
         makespan = max(end_times)
@@ -97,18 +99,20 @@ def simulate_schedule_optimized(solution_vec, operations, start_time: datetime |
 
         # Seleciona máquina disponível mais cedo
         machine = min(machines, key=lambda m: machine_available.get(m, 0))
-        
-        # Calcula horários baseado apenas na disponibilidade da máquina
-        # (removendo precedência por job para permitir paralelismo)
-        start_time_seconds = machine_available.get(machine, 0)
+
+        # Calcula horários respeitando precedência do job e máquina
+        start_time_seconds = max(
+            machine_available.get(machine, 0),
+            job_available.get(job, 0)
+        )
         end_time_seconds = start_time_seconds + duration
 
         logger.info(f"      Horários calculados: {start_time_seconds}s -> {end_time_seconds}s (duração: {duration}s)")
         logger.info(f"      Máquina selecionada: {machine}")
 
-        # Atualiza apenas disponibilidade da máquina
+        # Atualiza disponibilidade da máquina e do job (garante precedência)
         machine_available[machine] = end_time_seconds
-        # job_available[job] = end_time_seconds  # REMOVIDO: permite paralelismo
+        job_available[job] = end_time_seconds
 
         schedule.append({
             "job": job,

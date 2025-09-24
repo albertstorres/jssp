@@ -10,21 +10,24 @@
   margin-top: 8px;
   border-radius: 18px;
   border: none;
-  width: 100%;
+  width: auto;
+  min-width: 200px;
+  max-width: 300px;
   height: 48px;
   font-size: 16px;
   font-family: 'DM Sans', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #4CAF50;
+  background-color: #0DA9FF;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  align-self: center;
 }
 
 .mount-operation-button:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #0C98E6;
 }
 
 .mount-operation-button:disabled {
@@ -45,4 +48,90 @@
   overflow: auto;
 }
 
+/* Card de visualização amigável */
+.mount-operations-card {
+  background-color: #FFFFFF;
+  border: 2px solid #C8C8C8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.mount-operations-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mount-operations-card-title {
+  margin: 0;
+  font-size: 16px;
+  color: #585858;
+}
+
+.mount-operations-card-count {
+  color: #0066cc;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mount-operations-job-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mount-operations-job-item {
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  padding: 12px;
+  background-color: #FAFAFA;
+}
+
+.job-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.job-key {
+  font-weight: 600;
+  color: #333;
+}
+
+.job-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-tasks { background-color: #e7f3ff; color: #1976d2; }
+.badge-equipments { background-color: #fff7e6; color: #f57c00; }
+.badge-teams { background-color: #eaf7ea; color: #2e7d32; }
+
+.job-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 12px;
+}
+
+.job-detail { background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; padding: 8px 10px; }
+.detail-label { color: #585858; font-size: 12px; display: block; }
+.detail-values { color: #333; font-weight: 600; font-size: 13px; }
+
+@media (max-width: 768px) {
+  .job-detail-grid { grid-template-columns: 1fr; }
+}
 

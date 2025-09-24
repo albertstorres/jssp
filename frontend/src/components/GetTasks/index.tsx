@@ -35,6 +35,7 @@ function GetTasks({
   filterStatus,
 }: GetTaskProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [teamNames, setTeamNames] = useState<Record<number, string>>({});
   const { handleGetToken } = useAuth();
   const access = handleGetToken();
 
@@ -117,6 +118,46 @@ function GetTasks({
     fetchTasks();
   }, [access, showAll, reloadSignal, filterStatus]);
 
+  // Fallback: buscar nomes de equipes quando não vierem em team_info
+  useEffect(() => {
+    async function fetchMissingTeamNames() {
+      if (!access) return;
+
+      const missingIds = Array.from(
+        new Set(
+          tasks
+            .filter(t => !!t.team && (!t.team_info?.name) && !(t.team in teamNames))
+            .map(t => t.team)
+        )
+      );
+
+      if (missingIds.length === 0) return;
+
+      try {
+        const results = await Promise.all(
+          missingIds.map(async (id) => {
+            const response = await api.get<{ id: number; name: string }>(`http://localhost:8000/api/v1/teams/${id}/`, {
+              headers: { Authorization: `Bearer ${access}` },
+            });
+            return response.data;
+          })
+        );
+
+        setTeamNames(prev => {
+          const updated = { ...prev };
+          results.forEach(team => {
+            if (team && team.id) updated[team.id] = team.name;
+          });
+          return updated;
+        });
+      } catch (error) {
+        console.error('Erro ao buscar nomes de equipes:', error);
+      }
+    }
+
+    fetchMissingTeamNames();
+  }, [tasks, access, teamNames]);
+
   const isSelected = (task: Task) =>
     selectedTasks.some((selected) => selected.id === task.id);
 
@@ -129,7 +170,6 @@ function GetTasks({
     let statusClass = task.status;
     
     if (onMount) {
-      statusText = `${task.status} (Em montagem)`;
       statusClass = 'mounting';
     }
     
@@ -168,7 +208,7 @@ function GetTasks({
                 </div>
                 <div className="task-info-line">
                   <span className="task-info-label">Equipe:</span>
-                  <span className="task-value">{task.team_info?.name || "Sem equipe"}</span>
+                  <span className="task-value">{task.team_info?.name || (task.team ? teamNames[task.team] : undefined) || "Sem equipe"}</span>
                 </div>
                 <div className="task-info-line">
                   <span className="task-info-label">Status:</span>
@@ -188,18 +228,19 @@ function GetTasks({
         </ul>
 
         {tasks.length > 0 && (
-          <div className="tasks-legend">
-            <div className="legend-item">
-              <div className="legend-color legend-available"></div>
-              <span>Disponível</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-color legend-mounting"></div>
-              <span>Em montagem</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-color legend-selected"></div>
-              <span>Selecionada</span>
+          <div className="tasks-summary">
+            <span className="tasks-count">
+              {tasks.length} tarefa{tasks.length !== 1 ? 's' : ''} {showAll ? 'encontrada' : (filterStatus === 'in_progress' ? 'em andamento' : 'pendente')}{tasks.length !== 1 ? 's' : ''}
+            </span>
+            <div className="tasks-legend">
+              <div className="legend-item">
+                <div className="legend-color legend-available"></div>
+                <span>Disponível</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color legend-selected"></div>
+                <span>Selecionada</span>
+              </div>
             </div>
           </div>
         )}
